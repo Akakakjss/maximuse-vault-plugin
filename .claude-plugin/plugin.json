@@ -1,7 +1,7 @@
 {
   "name": "vault",
-  "displayName": "Claude Vault",
-  "version": "0.2.0",
+  "displayName": "Maximuse Vault",
+  "version": "0.3.0",
   "description": "Keep step notes and handoffs in an Obsidian vault so you can clear long chats at 200-300k tokens and resume without losing the thread. Cuts cache-read tokens, so the same usage limit goes roughly twice as far.",
   "author": {
     "name": "Kaleb Tessera"
@@ -21,8 +21,8 @@
     "vault_path": {
       "type": "string",
       "title": "Vault folder",
-      "description": "Folder for the Obsidian vault. It doesn't have to exist yet: /vault:setup creates it or adopts an existing folder. ~ means your home folder. Example on Windows: C:\\Users\\you\\Documents\\Claude Vault",
-      "default": "~/Documents/Claude Vault"
+      "description": "Folder for the Obsidian vault. It doesn't have to exist yet: /vault:setup creates it or adopts an existing folder. ~ means your home folder. Example on Windows: C:\\Users\\you\\Documents\\Maximuse Vault",
+      "default": "~/Documents/Maximuse Vault"
     },
     "python": {
       "type": "string",

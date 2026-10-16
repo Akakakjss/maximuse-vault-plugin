@@ -34,7 +34,11 @@ Run on 2026-10-16 with 0.2.0 installed from GitHub (`claude plugin marketplace a
 - Step 9: the first run wrote `_System\Usage baseline.md`; the second printed the comparison table.
 - Step 10: with `inject_rules` off, the folder with no handoff got no output; the folder with the handoff got a 319-char pointer; after a save (mark) it got the Brief and handoff (2,309 chars). The rules were absent every time.
 
-**Not yet tested:** the desktop app's clear tool with the plugin (`/vault:save` end to end, see [Desktop app](#desktop-app)) and step 11 on 0.2.0.
+## Already done (Windows, 0.3.0 root layout)
+
+The plugin moved to the repository root. Installed from the local folder into the same throwaway profile: `claude plugin details vault@maximuse` showed "Maximuse Vault (vault) 0.3.0" with 4 skills and the SessionStart hook. `claude --init-only` in `C:\cvtest\other` gave rules + pointer (2,645 chars); after `--mark-reload`, "Resuming from the Maximuse Vault handoff" (4,635 chars) and the mark was used. The hook ran `scripts/vault_resume.py` from the root.
+
+**Not yet tested:** step 11 (uninstall) on 0.2.0 or later. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
 
 ## On the Windows PC
 
@@ -67,7 +71,7 @@ Then, still in that PowerShell window (so the throwaway profile is used):
 |---|---|---|
 | 4 | `claude` in `C:\cvtest\work`, then `/vault:setup` | Dry-run list, then `CREATED new vault: C:\cvtest\Vault`. |
 | 5 | Ask Claude to `git init` and create a small file, then `/vault:save hook test` | A session folder `Projects\work\Sessions\<date> hook test\` with `00 Handoff.md` (`cwd: C:\cvtest\work`) and a step note; the message "Handoff saved as **work / <date> hook test**" and the resume command; then a request to type `/clear`. `C:\cvtest\Vault\_System\reload-pending.json` holds `"c:/cvtest/work"`. Don't type `/clear` yet. |
-| 5b | In a second PowerShell window with the same `CLAUDE_CONFIG_DIR`: `cd C:\cvtest\work`, `claude --init-only --debug-file C:\cvtest\mark.log`, then `Select-String -Path C:\cvtest\mark.log -Pattern "Resuming from the Claude Vault"`. Run `--init-only` once more. | This is what the desktop app's clear looks like (a plain startup). The first run matches "Resuming from the Claude Vault handoff" and `reload-pending.json` becomes `{}`; the second run gets only the rules and a pointer. |
+| 5b | In a second PowerShell window with the same `CLAUDE_CONFIG_DIR`: `cd C:\cvtest\work`, `claude --init-only --debug-file C:\cvtest\mark.log`, then `Select-String -Path C:\cvtest\mark.log -Pattern "Resuming from the Maximuse Vault"`. Run `--init-only` once more. | This is what the desktop app's clear looks like (a plain startup). The first run matches "Resuming from the Maximuse Vault handoff" and `reload-pending.json` becomes `{}`; the second run gets only the rules and a pointer. |
 | 6 | Back in the first window: type `/clear`, then ask "what's next?" | Claude knows the goal and next step without reading anything, then checks git status before acting. |
 | 7 | `cd C:\cvtest\other`, then `claude -p "/vault:resume hook test" --max-turns 8 --add-dir C:\cvtest\Vault --add-dir C:\cvtest\work --permission-mode acceptEdits --allowedTools "Bash(python *)" "PowerShell(python *)"` (headless runs can't answer permission prompts; on Windows Claude may run Python through PowerShell) | Finds the handoff by name, re-points its `cwd:` to `C:\cvtest\other` with a note under "Checked state", reports the next step. |
 | 8 | `claude -p "/vault:resume" --allowedTools "Bash(python *)" "PowerShell(python *)"` | Lists unfinished handoffs and asks which one; doesn't pick one itself. |
@@ -86,4 +90,4 @@ The desktop app uses your real profile, so test it after [moving from the person
 3. If the clear tool is missing or refused, Claude should fall back to asking you to type `/clear`.
 4. If a desktop session shows `Plugin option ... isn't set`, set the options from the terminal (INSTALL.md, section 2) and start a new desktop session.
 
-This is the first live run of `save` with the clear tool, so note whether the tool name `mcp__ccd_session_mgmt__clear_session` still matches what the app offers; if it changed, update `plugins/vault/skills/save/SKILL.md`.
+This is the first live run of `save` with the clear tool, so note whether the tool name `mcp__ccd_session_mgmt__clear_session` still matches what the app offers; if it changed, update `skills/save/SKILL.md`.

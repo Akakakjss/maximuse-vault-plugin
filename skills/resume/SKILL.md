@@ -1,12 +1,12 @@
 ---
 name: resume
-description: Resume earlier work from a Claude Vault handoff by name. `/vault:resume <part of the name>` loads that handoff, the project's Brief, its step notes, Decisions and Gotchas, then checks the real state before continuing. Use when the user asks to resume, continue or pick up earlier work, or names a handoff.
+description: Resume earlier work from a Maximuse Vault handoff by name. `/vault:resume <part of the name>` loads that handoff, the project's Brief, its step notes, Decisions and Gotchas, then checks the real state before continuing. Use when the user asks to resume, continue or pick up earlier work, or names a handoff.
 argument-hint: "<part of the handoff name>"
 ---
 
-# Resume from the Claude Vault
+# Resume from the Maximuse Vault
 
-Vault: `${user_config.vault_path}`. Note layout and rules come from the plugin's SessionStart hook ("Claude Vault: session notes and handoffs"); the full text is in `${CLAUDE_PLUGIN_ROOT}/rules/vault-rules.md`.
+Vault: `${user_config.vault_path}`. Note layout and rules come from the plugin's SessionStart hook ("Maximuse Vault: session notes and handoffs"); the full text is in `${CLAUDE_PLUGIN_ROOT}/rules/vault-rules.md`.
 
 **Handoff names.** Every handoff is named by its session folder, shown as `<Project> / <YYYY-MM-DD> <topic>`. Each conversation has its own, so parallel chats never share one. The user picks one by typing any unique part of the name, e.g. `/vault:resume vault setup`.
 

@@ -1,4 +1,4 @@
-# Claude Vault for Claude Code
+# Maximuse Vault for Claude Code
 
 A Claude Code plugin that keeps step notes and handoffs in an Obsidian vault, so you can clear a long chat at 200–300k tokens and pick it back up in a fresh one without losing the thread. This repository is also a plugin marketplace (`maximuse`), so it installs with two commands.
 
@@ -22,7 +22,7 @@ Clearing at ~250k and resuming from a short, accurate handoff keeps the average 
 Vault layout:
 
 ```
-Claude Vault/
+Maximuse Vault/
   Home.md
   _System/Templates/        Brief, Decisions, Gotchas, Handoff, Step
   Projects/<Project>/
@@ -44,11 +44,13 @@ See **[INSTALL.md](INSTALL.md)** for install, first run, permissions, troublesho
 /vault:setup
 ```
 
-Requires Python 3.8 or later and a recent Claude Code (tested with v2.1.301).
+Requires Python 3.8 or later and a recent Claude Code (tested with v2.1.292 on Windows and v2.1.301 on Linux).
+
+**Where it works:** Claude Code (terminal, IDE extensions and the desktop app's Code tab). The hook and the Python scripts need Claude Code on your own computer; claude.ai chat skips hooks and can't run the scripts, so the plugin does nothing useful there.
 
 ## Design notes
 
-**The always-on rules are injected by the hook, not pasted into CLAUDE.md.** A plugin can't edit your CLAUDE.md, and Claude Code doesn't load a CLAUDE.md shipped inside a plugin. Rules only inside a skill aren't enough either, because a skill loads only when invoked, so step notes during normal work would be skipped. The SessionStart hook adds the same ~550-token rules as `additionalContext` on startup, `/clear` and compaction: the same cost as a CLAUDE.md section, with no manual step, and the vault path filled in from your settings. If you'd rather keep them in CLAUDE.md, turn the "Load the note rules every session" option off and paste `plugins/vault/rules/vault-rules.md` there.
+**The always-on rules are injected by the hook, not pasted into CLAUDE.md.** A plugin can't edit your CLAUDE.md, and Claude Code doesn't load a CLAUDE.md shipped inside a plugin. Rules only inside a skill aren't enough either, because a skill loads only when invoked, so step notes during normal work would be skipped. The SessionStart hook adds the same ~550-token rules as `additionalContext` on startup, `/clear` and compaction: the same cost as a CLAUDE.md section, with no manual step, and the vault path filled in from your settings. If you'd rather keep them in CLAUDE.md, turn the "Load the note rules every session" option off and paste `rules/vault-rules.md` there.
 
 **Everything the hook injects stays under 9,500 characters.** Claude Code moves `additionalContext` over 10,000 characters into a file and shows Claude only a 2,000-character preview. The hook gives the handoff priority, gives the Brief what's left, and marks any truncation with the note's full path.
 
@@ -60,21 +62,23 @@ Requires Python 3.8 or later and a recent Claude Code (tested with v2.1.301).
 
 ## Repository layout
 
+The repository root is both the plugin and its marketplace, so the plugin folder is the whole repository.
+
 ```
-.claude-plugin/marketplace.json   marketplace "maximuse" listing the plugin
-plugins/vault/                    the plugin
-  .claude-plugin/plugin.json      manifest and the three options
-  hooks/hooks.json                SessionStart hook (startup|clear|compact)
-  skills/{save,resume,setup,usage}/SKILL.md
-  scripts/                        vault_resume.py (hook), vault_find.py, vault_setup.py, usage_sum.py
-  rules/vault-rules.md            the always-on rules
-  templates/                      Home.md and _System/Templates/
+.claude-plugin/marketplace.json   marketplace "maximuse" listing the plugin (source "./")
+.claude-plugin/plugin.json        plugin manifest and the three options
+hooks/hooks.json                  SessionStart hook (startup|clear|compact)
+skills/{save,resume,setup,usage}/SKILL.md
+scripts/                          vault_resume.py (hook), vault_find.py, vault_setup.py, usage_sum.py
+rules/vault-rules.md              the always-on rules
+templates/                        Home.md and _System/Templates/
 tests/run_tests.py                script tests in a temp folder
-TESTING.md                        test plan
+INSTALL.md, TESTING.md            install guide and test plan
 ```
 
 ## Changes
 
+- **0.3.0** – The plugin moved from `plugins/vault/` to the repository root, as Anthropic's directory asks for a plugin whose hook runs a script. Display name is now "Maximuse Vault" (the default vault folder, used only if the option is unset, is now `~/Documents/Maximuse Vault`). Commands, options and vault format are unchanged; existing installs update with `/plugin marketplace update maximuse`, then `/plugin update vault@maximuse`.
 - **0.2.0** – `/vault:save` reloads the full handoff after the desktop app's clear, which arrives as a startup rather than `/clear` (it used to load only a pointer).
 - **0.1.0** – First release.
 
