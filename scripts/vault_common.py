@@ -1,11 +1,11 @@
-"""Shared helpers for the Claude Vault plugin scripts.
+"""Shared helpers for the Maximuse Vault plugin scripts.
 
 The vault folder is resolved in this order:
   1. --vault PATH on the command line (skills and the hook pass the plugin's
      vault_path option this way)
   2. the CLAUDE_VAULT environment variable
   3. CLAUDE_PLUGIN_OPTION_VAULT_PATH (Claude Code exports it to hook processes)
-  4. the default, ~/Documents/Claude Vault
+  4. the default, ~/Documents/Maximuse Vault
 A value that still contains an unsubstituted "${" placeholder is ignored.
 """
 import glob
@@ -13,7 +13,7 @@ import json
 import os
 import time
 
-DEFAULT_VAULT = os.path.join("~", "Documents", "Claude Vault")
+DEFAULT_VAULT = os.path.join("~", "Documents", "Maximuse Vault")
 HANDOFF = "00 Handoff.md"
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RELOAD_FILE = os.path.join("_System", "reload-pending.json")

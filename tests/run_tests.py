@@ -1,4 +1,4 @@
-r"""Self-contained tests for the Claude Vault plugin scripts.
+r"""Self-contained tests for the Maximuse Vault plugin scripts.
 
 Run with the same Python the plugin is configured to use:
     python tests/run_tests.py            (Windows)
@@ -16,7 +16,7 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCRIPTS = os.path.join(os.path.dirname(HERE), "plugins", "vault", "scripts")
+SCRIPTS = os.path.join(os.path.dirname(HERE), "scripts")
 PY = sys.executable
 FAILS = []
 
@@ -88,7 +88,7 @@ def main():
 
         print("hook: startup, no handoff")
         ctx = hook(vault, {"source": "startup", "cwd": work})
-        check(ctx is not None and "Claude Vault: session notes and handoffs" in ctx, "injects the rules")
+        check(ctx is not None and "Maximuse Vault: session notes and handoffs" in ctx, "injects the rules")
         check(vault in ctx and "{{VAULT}}" not in ctx, "rules name the vault path")
         check(len(ctx) < 3000, f"rules stay short ({len(ctx)} chars)")
         check(hook(vault, {"source": "startup", "cwd": work}, rules="false") is None, "rules off and no handoff: no output")

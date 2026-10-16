@@ -1,10 +1,10 @@
 ---
 name: setup
-description: Create the Claude Vault folder, or adopt an existing folder as the vault, and check that the plugin's Python command and hook work. Use on first run, when the hook or finder reports the vault folder is missing, or when the user wants to move the vault.
+description: Create the Maximuse Vault folder, or adopt an existing folder as the vault, and check that the plugin's Python command and hook work. Use on first run, when the hook or finder reports the vault folder is missing, or when the user wants to move the vault.
 argument-hint: "[folder to create or adopt]"
 ---
 
-# Set up the Claude Vault
+# Set up the Maximuse Vault
 
 Configured vault: `${user_config.vault_path}`. Configured Python: `${user_config.python}`.
 

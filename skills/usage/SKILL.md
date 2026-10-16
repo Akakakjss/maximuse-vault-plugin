@@ -1,6 +1,6 @@
 ---
 name: usage
-description: Compare Claude Code token usage (cache-read share, context per call, output, totals) with the baseline saved in the Claude Vault, to see whether clearing early and resuming from handoffs is paying off. Use when the user asks how their usage or token savings are going.
+description: Compare Claude Code token usage (cache-read share, context per call, output, totals) with the baseline saved in the Maximuse Vault, to see whether clearing early and resuming from handoffs is paying off. Use when the user asks how their usage or token savings are going.
 disable-model-invocation: true
 ---
 

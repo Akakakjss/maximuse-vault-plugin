@@ -1,12 +1,12 @@
 ---
 name: save
-description: Checkpoint to the Claude Vault, then clear the chat. `/vault:save [name]` writes a step note, rebuilds this conversation's named handoff from the notes and freshly checked state, prints the resume command, then clears so the chat reloads from the handoff. Use when the user asks to save, checkpoint or update a handoff, or before clearing a long chat.
+description: Checkpoint to the Maximuse Vault, then clear the chat. `/vault:save [name]` writes a step note, rebuilds this conversation's named handoff from the notes and freshly checked state, prints the resume command, then clears so the chat reloads from the handoff. Use when the user asks to save, checkpoint or update a handoff, or before clearing a long chat.
 argument-hint: "[name]"
 ---
 
-# Save to the Claude Vault, then clear
+# Save to the Maximuse Vault, then clear
 
-Vault: `${user_config.vault_path}`. Note layout and rules come from the plugin's SessionStart hook ("Claude Vault: session notes and handoffs"); the full text is in `${CLAUDE_PLUGIN_ROOT}/rules/vault-rules.md`.
+Vault: `${user_config.vault_path}`. Note layout and rules come from the plugin's SessionStart hook ("Maximuse Vault: session notes and handoffs"); the full text is in `${CLAUDE_PLUGIN_ROOT}/rules/vault-rules.md`.
 
 Requested name: `$ARGUMENTS`
 

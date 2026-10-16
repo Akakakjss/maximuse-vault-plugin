@@ -1,4 +1,4 @@
-"""Create a Claude Vault, or adopt an existing folder as one.
+"""Create a Maximuse Vault, or adopt an existing folder as one.
 
 Usage: vault_setup.py [--vault PATH] [--dry-run]
 Copies Home.md and _System/Templates/*.md from the plugin into the vault and

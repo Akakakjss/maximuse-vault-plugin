@@ -1,4 +1,4 @@
-"""Find Claude Vault handoffs for the /vault:resume and /vault:save skills.
+"""Find Maximuse Vault handoffs for the /vault:resume and /vault:save skills.
 
 Usage: vault_find.py [--vault PATH] [working-directory] [--name TEXT ...]
        vault_find.py [--vault PATH] [working-directory] --mark-reload
