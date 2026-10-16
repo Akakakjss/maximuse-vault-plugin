@@ -9,11 +9,15 @@ The vault folder is resolved in this order:
 A value that still contains an unsubstituted "${" placeholder is ignored.
 """
 import glob
+import json
 import os
+import time
 
 DEFAULT_VAULT = os.path.join("~", "Documents", "Claude Vault")
 HANDOFF = "00 Handoff.md"
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RELOAD_FILE = os.path.join("_System", "reload-pending.json")
+RELOAD_MAX_AGE = 7 * 24 * 3600
 
 
 def _usable(value):
@@ -89,3 +93,39 @@ def handoff_name(handoff_path):
 def read_text(path):
     with open(path, encoding="utf-8", errors="replace") as f:
         return f.read()
+
+
+# /vault:save marks its folder before clearing, because the desktop app's clear
+# restarts the session as "startup", not "clear". The hook's next start in that
+# folder takes the mark and reloads the handoff as after a clear, once.
+def _reload_marks(vault):
+    try:
+        with open(os.path.join(vault, RELOAD_FILE), encoding="utf-8") as f:
+            marks = json.load(f)
+        return marks if isinstance(marks, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _write_reload_marks(vault, marks):
+    path = os.path.join(vault, RELOAD_FILE)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(marks, f, indent=1)
+
+
+def mark_reload(vault, cwd):
+    marks = _reload_marks(vault)
+    marks[norm(cwd)] = time.time()
+    _write_reload_marks(vault, marks)
+
+
+def take_reload(vault, cwd):
+    """Remove this folder's reload mark (and marks older than a week); True if it had one."""
+    marks = _reload_marks(vault)
+    cwd = norm(cwd)
+    now = time.time()
+    keep = {k: v for k, v in marks.items() if k != cwd and isinstance(v, (int, float)) and now - v < RELOAD_MAX_AGE}
+    if keep != marks:
+        _write_reload_marks(vault, keep)
+    return bool(cwd) and cwd in marks

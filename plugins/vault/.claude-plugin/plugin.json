@@ -1,7 +1,7 @@
 {
   "name": "vault",
   "displayName": "Claude Vault",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Keep step notes and handoffs in an Obsidian vault so you can clear long chats at 200-300k tokens and resume without losing the thread. Cuts cache-read tokens, so the same usage limit goes roughly twice as far.",
   "author": {
     "name": "Kaleb Tessera"

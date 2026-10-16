@@ -1,9 +1,12 @@
 """Find Claude Vault handoffs for the /vault:resume and /vault:save skills.
 
 Usage: vault_find.py [--vault PATH] [working-directory] [--name TEXT ...]
+       vault_find.py [--vault PATH] [working-directory] --mark-reload
 Prints the resolved vault, handoffs whose name ("Project / Session") contains
 TEXT, the handoff whose `cwd:` matches the folder (if any), and the most recent
 unfinished handoffs across the vault, each with its name and note paths.
+--mark-reload makes the hook reload the handoff on the folder's next session
+start (/vault:save runs it right before clearing).
 """
 import argparse
 import os
@@ -39,6 +42,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--vault")
     ap.add_argument("--name", nargs="*", default=[])
+    ap.add_argument("--mark-reload", action="store_true")
     ap.add_argument("cwd", nargs="?")
     args = ap.parse_args()
 
@@ -51,6 +55,10 @@ def main():
     print(f"CWD: {raw_cwd}")
     if not os.path.isdir(vault):
         print("VAULT MISSING: the folder doesn't exist. Run /vault:setup first.")
+        return
+    if args.mark_reload:
+        vc.mark_reload(vault, raw_cwd)
+        print("RELOAD MARKED: the next session start in this folder reloads its handoff.")
         return
     templates = os.path.join(vault, "_System", "Templates")
     if not os.path.isdir(templates):
