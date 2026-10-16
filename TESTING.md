@@ -1,0 +1,74 @@
+# Test plan
+
+Everything here runs in a throwaway profile and a throwaway vault, so your real `~/.claude` and your real vault are never touched.
+
+## Already done (Linux, Claude Code v2.1.301, Python 3)
+
+- `claude plugin validate --strict` passes for the marketplace and the plugin.
+- `tests/run_tests.py`: all checks pass (setup create/adopt, hook in every case below, finder, usage summary).
+- Real install into a temp `CLAUDE_CONFIG_DIR` from the local marketplace, then `claude --init-only`: with options unset the hook fails with `Plugin option "python" isn't set`; with options set it injects the rules (startup) or the missing-vault notice. A vault path with spaces works.
+- Headless `claude -p "/vault:resume login fix"` against a temp vault: the skill's `${user_config.*}` and `${CLAUDE_PLUGIN_ROOT}` references were substituted, the finder found the handoff by name, Claude read the Brief and handoff, checked the folder and tests, and stopped at the permission prompt for writing into the vault (expected: see INSTALL.md, section 5).
+- Uninstall and marketplace removal.
+
+## Already done (Windows, Claude Code v2.1.292, Python 3.14.4)
+
+Run on 2026-10-16 in `C:\cvtest` with `CLAUDE_CONFIG_DIR=C:\cvtest\cfg`; the real profile wasn't touched. `python` on PATH (the Python install manager's alias) works, so the install used `--config python=python`.
+
+- Step 1: `python tests\run_tests.py` → all checks passed, including the Windows case/slash match.
+- Step 2: `claude plugin validate --strict` → passed for the marketplace and the plugin.
+- Step 3: install with all three `--config` options, then `claude --init-only` → `Hook SessionStart:startup success`, the missing-vault notice (166 chars); after creating the vault and a handoff, 2,637 chars (rules + pointer).
+- `vault_setup.py` dry run, create, then adopt the same folder (0 added, 6 kept). `vault_resume.py` with `startup`, `clear` and `compact` input: pointer only on startup; Brief and handoff on clear and compact; ASCII-only JSON with non-ASCII text intact; `c:/CVTEST/work/` still matches; another folder gets rules only.
+- Step 11: uninstall → plugin gone, `C:\cvtest\Vault` kept.
+
+**Not yet tested:** steps 4–10 (step 7 and 8 need the throwaway profile to be logged in; the rest need an interactive session), the desktop app's clear tool (`/vault:save` end to end), and a live `/clear`.
+
+## On the Windows PC
+
+Use short paths (long Windows paths stop Claude Code from starting). PowerShell:
+
+```powershell
+# 0. Throwaway profile and folders. You'll be asked to log in once in this profile.
+mkdir C:\cvtest\work, C:\cvtest\other
+$env:CLAUDE_CONFIG_DIR = "C:\cvtest\cfg"
+
+# 1. Script tests (also checks Windows case/slash matching and cp1252-safe output)
+python C:\path\to\maximuse-vault-plugin\tests\run_tests.py
+
+# 2. Install from the local copy
+claude plugin validate --strict C:\path\to\maximuse-vault-plugin
+claude plugin marketplace add C:\path\to\maximuse-vault-plugin
+claude plugin install vault@maximuse --config python=python --config vault_path=C:\cvtest\Vault --config inject_rules=true
+
+# 3. Hook through Claude Code, without a conversation
+cd C:\cvtest\work
+claude --init-only --debug-file C:\cvtest\init.log
+Select-String -Path C:\cvtest\init.log -Pattern "SessionStart|additionalContext"
+```
+
+Expected in step 3: `provided additionalContext` with the "vault folder … doesn't exist yet" notice, and no `Hook failed`.
+
+Then, still in that PowerShell window (so the throwaway profile is used):
+
+| # | Do | Expect |
+|---|---|---|
+| 4 | `claude` in `C:\cvtest\work`, then `/vault:setup` | Dry-run list, then `CREATED new vault: C:\cvtest\Vault`. |
+| 5 | Ask Claude to `git init` and create a small file, then `/vault:save hook test` | A session folder `Projects\work\Sessions\<date> hook test\` with `00 Handoff.md` (`cwd: C:\cvtest\work`) and a step note; the message "Handoff saved as **work / <date> hook test**" and the resume command; then a request to type `/clear`. |
+| 6 | Type `/clear`, then ask "what's next?" | Claude knows the goal and next step without reading anything, then checks git status before acting. |
+| 7 | `cd C:\cvtest\other`, then `claude -p "/vault:resume hook test" --max-turns 8 --add-dir C:\cvtest\Vault --permission-mode acceptEdits --allowedTools "Bash(python *)"` (headless runs can't answer permission prompts) | Finds the handoff by name, re-points its `cwd:` to `C:\cvtest\other` with a note under "Checked state", reports the next step. |
+| 8 | `claude -p "/vault:resume" --allowedTools "Bash(python *)"` | Lists unfinished handoffs and asks which one; doesn't pick one itself. |
+| 9 | `/vault:usage` twice | First run writes `C:\cvtest\Vault\_System\Usage baseline.md`; second run prints a comparison table. |
+| 10 | `/plugin configure vault@maximuse`, turn rules off, new session | No rules at startup; after `/clear` in a folder with a handoff, only the Brief and handoff. |
+| 11 | `claude plugin uninstall vault@maximuse` | Plugin gone; `C:\cvtest\Vault` still there. |
+
+Clean up: close the window (or `Remove-Item Env:CLAUDE_CONFIG_DIR`) and delete `C:\cvtest`.
+
+## Desktop app
+
+The desktop app uses your real profile, so test it after [moving from the personal setup](INSTALL.md#moving-from-the-personal-setup):
+
+1. In a desktop chat with some work in it, run `/vault:save desktop test`.
+2. Approve the clear prompt. Expect the chat to clear after Claude's turn and the next message to continue from the handoff.
+3. If the clear tool is missing or refused, Claude should fall back to asking you to type `/clear`.
+4. If a desktop session shows `Plugin option ... isn't set`, set the options from the terminal (INSTALL.md, section 2) and start a new desktop session.
+
+This is the first live run of `save` with the clear tool, so note whether the tool name `mcp__ccd_session_mgmt__clear_session` still matches what the app offers; if it changed, update `plugins/vault/skills/save/SKILL.md`.
