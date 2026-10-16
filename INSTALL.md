@@ -32,7 +32,7 @@ claude plugin marketplace add akakakjss/maximuse-vault-plugin
 claude plugin install vault@maximuse --config python=python --config "vault_path=C:\Users\you\Documents\Claude Vault" --config inject_rules=true
 ```
 
-Change them later with `/plugin configure vault@maximuse`. The terminal, the desktop app's local sessions and VS Code read the same settings, so options set in one apply to all; if the desktop app's plugin browser doesn't ask for the options, set them from the terminal as above. Restart Claude Code (or start a new session) after installing or changing options.
+Change them later with `/plugin configure vault@maximuse`, or from a shell by piping JSON to `claude plugin configure vault@maximuse --values-stdin` (for example `{"inject_rules":"false"}`; options you leave out keep their values). `claude plugin configure vault@maximuse` on its own lists the options and whether each is set. The terminal, the desktop app's local sessions and VS Code read the same settings, so options set in one apply to all; if the desktop app's plugin browser doesn't ask for the options, set them from the terminal as above. Restart Claude Code (or start a new session) after installing or changing options.
 
 ## 3. First run
 
@@ -56,13 +56,13 @@ Claude also writes short step notes on its own after commits, passing tests, dec
 
 **How `save` clears the chat**
 
-- **Desktop app:** Claude calls the app's clear tool, which asks you to approve. The chat clears when Claude's turn ends; the hook reloads the Brief and handoff, and your next message continues from them.
+- **Desktop app:** Claude calls the app's clear tool, which asks you to approve. The chat clears when Claude's turn ends; the hook reloads the Brief and handoff, and your next message continues from them. The app restarts the session as a normal start, so `save` leaves a one-time mark in `_System/reload-pending.json` just before clearing to tell the hook to reload.
 - **Terminal:** Claude saves the notes and asks you to type `/clear` yourself. Use `/clear`, not `/compact`: compaction replaces the conversation with a lossy summary, while the handoff was built to be resumed from.
 - Either way, `save` prints the resume command, e.g. `/vault:resume login fix`, which works from any other chat or folder.
 
 ## 5. Permissions you'll see
 
-- **At install:** Claude Code asks you to trust the plugin. The plugin's hook then runs your configured Python with `vault_resume.py` at every session start, `/clear` and compaction, without asking. It only reads the vault and prints text for Claude; it writes nothing and uses no network.
+- **At install:** Claude Code asks you to trust the plugin. The plugin's hook then runs your configured Python with `vault_resume.py` at every session start, `/clear` and compaction, without asking. It reads the vault and prints text for Claude, and uses no network. The only file it writes is `_System/reload-pending.json` in the vault, where it removes the reload mark that `/vault:save` left (and marks older than a week).
 - **Running the scripts:** the first time Claude runs `vault_find.py`, `vault_setup.py` or `usage_sum.py`, you get a Bash permission prompt. "Yes, and don't ask again" is fine for these.
 - **Writing notes:** the vault is usually outside your project folder, so Claude asks before each write there. To allow it once and for all, add the vault to your user settings (`~/.claude/settings.json`), adjusting the path:
 

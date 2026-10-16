@@ -10,7 +10,7 @@ Everything here runs in a throwaway profile and a throwaway vault, so your real 
 - Headless `claude -p "/vault:resume login fix"` against a temp vault: the skill's `${user_config.*}` and `${CLAUDE_PLUGIN_ROOT}` references were substituted, the finder found the handoff by name, Claude read the Brief and handoff, checked the folder and tests, and stopped at the permission prompt for writing into the vault (expected: see INSTALL.md, section 5).
 - Uninstall and marketplace removal.
 
-## Already done (Windows, Claude Code v2.1.292, Python 3.14.4)
+## Already done (Windows, 0.1.0, Claude Code v2.1.292, Python 3.14.4)
 
 Run on 2026-10-16 in `C:\cvtest` with `CLAUDE_CONFIG_DIR=C:\cvtest\cfg`; the real profile wasn't touched. `python` on PATH (the Python install manager's alias) works, so the install used `--config python=python`.
 
@@ -20,7 +20,21 @@ Run on 2026-10-16 in `C:\cvtest` with `CLAUDE_CONFIG_DIR=C:\cvtest\cfg`; the rea
 - `vault_setup.py` dry run, create, then adopt the same folder (0 added, 6 kept). `vault_resume.py` with `startup`, `clear` and `compact` input: pointer only on startup; Brief and handoff on clear and compact; ASCII-only JSON with non-ASCII text intact; `c:/CVTEST/work/` still matches; another folder gets rules only.
 - Step 11: uninstall → plugin gone, `C:\cvtest\Vault` kept.
 
-**Not yet tested:** steps 4–10 (step 7 and 8 need the throwaway profile to be logged in; the rest need an interactive session), the desktop app's clear tool (`/vault:save` end to end), and a live `/clear`.
+## Already done (Windows, 0.2.0, Claude Code v2.1.292, Python 3.14.4)
+
+Run on 2026-10-16 with 0.2.0 installed from GitHub (`claude plugin marketplace add akakakjss/maximuse-vault-plugin`), the same throwaway profile, now logged in, and a fresh vault `C:\cvtest\Vault2`.
+
+- Step 3: `claude --init-only` → `Hook SessionStart:startup (SessionStart) success` with the missing-vault notice; the hook ran from the plugin cache's `0.2.0` folder.
+- Step 4: `/vault:setup` created the vault (Home.md and the five templates).
+- Step 5: `/vault:save hook test` wrote `work / 2026-10-16 hook test` (`cwd: C:\cvtest\work`) and the reload mark `{"c:/cvtest/work": …}` in `_System\reload-pending.json`.
+- Step 5b: `claude --init-only` in `C:\cvtest\work` → "Resuming from the Claude Vault handoff …" (4,418 chars) and the mark was gone; a second `--init-only` → rules + pointer only (2,639 chars).
+- Step 6: a live `/clear`, then "what's next": Claude named the handoff, checked `git status` and `git log` first, and proposed the next step.
+- Step 7: found the handoff by name from `C:\cvtest\other`, re-pointed `cwd:` there and added a line under "Checked state". Without `--add-dir C:\cvtest\work` it couldn't re-check the repo, so that flag is now in the step.
+- Step 8: listed the one unfinished handoff and asked for a name; didn't pick one.
+- Step 9: the first run wrote `_System\Usage baseline.md`; the second printed the comparison table.
+- Step 10: with `inject_rules` off, the folder with no handoff got no output; the folder with the handoff got a 319-char pointer; after a save (mark) it got the Brief and handoff (2,309 chars). The rules were absent every time.
+
+**Not yet tested:** the desktop app's clear tool with the plugin (`/vault:save` end to end, see [Desktop app](#desktop-app)) and step 11 on 0.2.0.
 
 ## On the Windows PC
 
@@ -52,12 +66,13 @@ Then, still in that PowerShell window (so the throwaway profile is used):
 | # | Do | Expect |
 |---|---|---|
 | 4 | `claude` in `C:\cvtest\work`, then `/vault:setup` | Dry-run list, then `CREATED new vault: C:\cvtest\Vault`. |
-| 5 | Ask Claude to `git init` and create a small file, then `/vault:save hook test` | A session folder `Projects\work\Sessions\<date> hook test\` with `00 Handoff.md` (`cwd: C:\cvtest\work`) and a step note; the message "Handoff saved as **work / <date> hook test**" and the resume command; then a request to type `/clear`. |
-| 6 | Type `/clear`, then ask "what's next?" | Claude knows the goal and next step without reading anything, then checks git status before acting. |
-| 7 | `cd C:\cvtest\other`, then `claude -p "/vault:resume hook test" --max-turns 8 --add-dir C:\cvtest\Vault --permission-mode acceptEdits --allowedTools "Bash(python *)"` (headless runs can't answer permission prompts) | Finds the handoff by name, re-points its `cwd:` to `C:\cvtest\other` with a note under "Checked state", reports the next step. |
-| 8 | `claude -p "/vault:resume" --allowedTools "Bash(python *)"` | Lists unfinished handoffs and asks which one; doesn't pick one itself. |
+| 5 | Ask Claude to `git init` and create a small file, then `/vault:save hook test` | A session folder `Projects\work\Sessions\<date> hook test\` with `00 Handoff.md` (`cwd: C:\cvtest\work`) and a step note; the message "Handoff saved as **work / <date> hook test**" and the resume command; then a request to type `/clear`. `C:\cvtest\Vault\_System\reload-pending.json` holds `"c:/cvtest/work"`. Don't type `/clear` yet. |
+| 5b | In a second PowerShell window with the same `CLAUDE_CONFIG_DIR`: `cd C:\cvtest\work`, `claude --init-only --debug-file C:\cvtest\mark.log`, then `Select-String -Path C:\cvtest\mark.log -Pattern "Resuming from the Claude Vault"`. Run `--init-only` once more. | This is what the desktop app's clear looks like (a plain startup). The first run matches "Resuming from the Claude Vault handoff" and `reload-pending.json` becomes `{}`; the second run gets only the rules and a pointer. |
+| 6 | Back in the first window: type `/clear`, then ask "what's next?" | Claude knows the goal and next step without reading anything, then checks git status before acting. |
+| 7 | `cd C:\cvtest\other`, then `claude -p "/vault:resume hook test" --max-turns 8 --add-dir C:\cvtest\Vault --add-dir C:\cvtest\work --permission-mode acceptEdits --allowedTools "Bash(python *)" "PowerShell(python *)"` (headless runs can't answer permission prompts; on Windows Claude may run Python through PowerShell) | Finds the handoff by name, re-points its `cwd:` to `C:\cvtest\other` with a note under "Checked state", reports the next step. |
+| 8 | `claude -p "/vault:resume" --allowedTools "Bash(python *)" "PowerShell(python *)"` | Lists unfinished handoffs and asks which one; doesn't pick one itself. |
 | 9 | `/vault:usage` twice | First run writes `C:\cvtest\Vault\_System\Usage baseline.md`; second run prints a comparison table. |
-| 10 | `/plugin configure vault@maximuse`, turn rules off, new session | No rules at startup; after `/clear` in a folder with a handoff, only the Brief and handoff. |
+| 10 | `/plugin configure vault@maximuse` and turn rules off, or from PowerShell: `'{"inject_rules":"false"}' \| claude plugin configure vault@maximuse --values-stdin`. Then start a new session. | No rules at startup; after `/clear` (or a save) in a folder with a handoff, only the Brief and handoff. |
 | 11 | `claude plugin uninstall vault@maximuse` | Plugin gone; `C:\cvtest\Vault` still there. |
 
 Clean up: close the window (or `Remove-Item Env:CLAUDE_CONFIG_DIR`) and delete `C:\cvtest`.
@@ -67,7 +82,7 @@ Clean up: close the window (or `Remove-Item Env:CLAUDE_CONFIG_DIR`) and delete `
 The desktop app uses your real profile, so test it after [moving from the personal setup](INSTALL.md#moving-from-the-personal-setup):
 
 1. In a desktop chat with some work in it, run `/vault:save desktop test`.
-2. Approve the clear prompt. Expect the chat to clear after Claude's turn and the next message to continue from the handoff.
+2. Approve the clear prompt. Expect the chat to clear after Claude's turn and the next message to continue from the handoff. The app restarts the session as a plain startup, so the full reload relies on the mark `/vault:save` writes just before clearing (0.2.0): Claude should know the next step without opening any notes. If it only knows that a handoff exists, the mark wasn't written or was used up by another session start in that folder.
 3. If the clear tool is missing or refused, Claude should fall back to asking you to type `/clear`.
 4. If a desktop session shows `Plugin option ... isn't set`, set the options from the terminal (INSTALL.md, section 2) and start a new desktop session.
 
