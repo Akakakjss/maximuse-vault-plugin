@@ -76,7 +76,17 @@ Claude also writes short step notes on its own after commits, passing tests, dec
   ```
 
   On Windows, a path outside your home folder is written like `//d/Notes/Claude Vault/**`.
-- **Clearing in the desktop app:** the clear tool asks for approval every time.
+- **Clearing in the desktop app:** the clear tool asks for approval every time. In **auto mode** it isn't asked at all: auto mode's safety check blocks it ("denied by the Claude Code auto mode classifier"), and `save` falls back to asking you to type `/clear`. To let `save` clear the chat in auto mode too, allow the tool in `~/.claude/settings.json`:
+
+  ```json
+  {
+    "permissions": {
+      "allow": ["mcp__ccd_session_mgmt__clear_session"]
+    }
+  }
+  ```
+
+  Trade-off: Claude can then clear its own chat without a prompt. Only `save` uses the tool, the handoff is always written first, and the old transcript stays on disk.
 
 ## 6. Troubleshooting
 
@@ -85,6 +95,8 @@ Claude also writes short step notes on its own after commits, passing tests, dec
 | `SessionStart hook error` mentioning `Plugin option "python" isn't set` (or `vault_path`, `inject_rules`) | Set all three options with `/plugin configure vault@maximuse`, then restart. |
 | Hook error saying the command can't be found or spawned | The Python option doesn't name a real executable. Use `python` (Windows) or `python3`, or the full path. On Windows it must be a real `.exe`, not a `.bat`/`.cmd` shim. |
 | Nothing loads after `/clear` | The handoff's `cwd:` must be this exact folder (case and slashes don't matter on Windows). Run `/vault:resume <name>` once in this folder; it re-points the handoff. Handoffs with `status: done` are never reloaded. |
+| Desktop app: `save` says the clear was blocked or "denied by the Claude Code auto mode classifier" | Auto mode blocks the clear tool. Type `/clear` yourself, leave auto mode before saving, or allow the tool (section 5). |
+| Desktop app: the chat cleared but nothing reloaded yet | A cleared chat starts its new session, and runs the hook, only when you send the next message. Send one; the handoff loads then. |
 | "The vault folder … doesn't exist yet" at every start | Run `/vault:setup`, or fix the Vault folder option. |
 | Rules or handoff appear twice | The personal setup is still installed. See the next section. |
 | Claude says the handoff was cut off | The hook loads at most about 9,500 characters in all; Claude Code would otherwise show only a preview. Claude reads the full note from the path given. Keep handoffs short; the save skill aims for under 6,000 characters. |
