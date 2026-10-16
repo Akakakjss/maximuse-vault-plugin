@@ -16,7 +16,7 @@ Clearing at ~250k and resuming from a short, accurate handoff keeps the average 
 | `/vault:resume <name>` | In any chat, loads a handoff by any unique part of its name, reads the Brief, step notes, Decisions and Gotchas, checks git and tests, and reports the next step. |
 | `/vault:setup [folder]` | First run: creates the vault, or adopts a folder you already use without overwriting anything. |
 | `/vault:usage` | Compares your token usage (cache-read share, context per call) with a saved baseline. |
-| SessionStart hook | Every session it adds the short note rules (~550 tokens). After `/clear` or compaction it also adds the Brief and the handoff whose `cwd:` matches the folder. On a normal start it only points to an unfinished handoff. |
+| SessionStart hook | Every session it adds the short note rules (~550 tokens). After `/clear`, compaction, or the first start after `/vault:save` it also adds the Brief and the handoff whose `cwd:` matches the folder. On a normal start it only points to an unfinished handoff. |
 | Vault templates | `Home.md`, plus Brief, Decisions, Gotchas, Handoff and Step templates under `_System/Templates/`. |
 
 Vault layout:
@@ -54,6 +54,8 @@ Requires Python 3.8 or later and a recent Claude Code (tested with v2.1.301).
 
 **`/clear`, not `/compact`.** A skill can't trigger `/compact`, and a compaction summary is lossy. The desktop app's clear tool clears after the turn ends, with your approval; in the terminal you type `/clear` yourself.
 
+**A one-time reload mark.** The desktop app's clear restarts the session as a normal startup, so the hook can't tell it from a new chat. `/vault:save` therefore marks the folder in `_System/reload-pending.json` just before clearing. The next session start in that folder reloads the full handoff and removes the mark, and marks older than a week are dropped. Later chats in that folder get only the short pointer, so unrelated work doesn't pay for the handoff.
+
 **Exec-form hook.** The hook runs your configured Python directly with each path as one argument, so paths with spaces need no quoting on any OS.
 
 ## Repository layout
@@ -70,6 +72,11 @@ plugins/vault/                    the plugin
 tests/run_tests.py                script tests in a temp folder
 TESTING.md                        test plan
 ```
+
+## Changes
+
+- **0.2.0** – `/vault:save` reloads the full handoff after the desktop app's clear, which arrives as a startup rather than `/clear` (it used to load only a pointer).
+- **0.1.0** – First release.
 
 ## License
 
