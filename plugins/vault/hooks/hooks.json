@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${user_config.python}",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/vault_resume.py",
+              "--vault",
+              "${user_config.vault_path}",
+              "--rules",
+              "${user_config.inject_rules}"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

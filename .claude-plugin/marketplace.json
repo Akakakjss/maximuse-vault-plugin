@@ -1,0 +1,14 @@
+{
+  "name": "maximuse",
+  "description": "Maximuse: Claude Code plugins that make a usage limit go further.",
+  "owner": { "name": "Kaleb Tessera" },
+  "plugins": [
+    {
+      "name": "vault",
+      "source": "./plugins/vault",
+      "description": "Obsidian-vault step notes and handoffs: clear long chats early and resume by name, for about twice the work per usage limit.",
+      "category": "productivity",
+      "tags": ["obsidian", "handoff", "context", "tokens"]
+    }
+  ]
+}

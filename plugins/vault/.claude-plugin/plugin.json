@@ -1,0 +1,29 @@
+{
+  "name": "vault",
+  "displayName": "Claude Vault",
+  "version": "0.1.0",
+  "description": "Keep step notes and handoffs in an Obsidian vault so you can clear long chats at 200-300k tokens and resume without losing the thread. Cuts cache-read tokens, so the same usage limit goes roughly twice as far.",
+  "author": { "name": "Kaleb Tessera" },
+  "license": "MIT",
+  "keywords": ["obsidian", "handoff", "notes", "context", "tokens", "usage"],
+  "userConfig": {
+    "vault_path": {
+      "type": "string",
+      "title": "Vault folder",
+      "description": "Folder for the Obsidian vault. It doesn't have to exist yet: /vault:setup creates it or adopts an existing folder. ~ means your home folder. Example on Windows: C:\\Users\\you\\Documents\\Claude Vault",
+      "default": "~/Documents/Claude Vault"
+    },
+    "python": {
+      "type": "string",
+      "title": "Python 3 command",
+      "description": "Command or full path that runs Python 3.8 or later. Usually python on Windows and python3 on macOS and Linux. A full path to python.exe works too.",
+      "default": "python3"
+    },
+    "inject_rules": {
+      "type": "boolean",
+      "title": "Load the note rules every session",
+      "description": "Adds the short note-keeping rules (about 500 tokens) to every session through the SessionStart hook. Turn off only if you pasted rules/vault-rules.md into your own CLAUDE.md instead.",
+      "default": true
+    }
+  }
+}
