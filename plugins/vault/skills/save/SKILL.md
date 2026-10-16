@@ -25,7 +25,10 @@ It prints the resolved `VAULT:` (use that path for every note), `TEMPLATES:` (th
 3. **Rebuild `00 Handoff.md` from the template.** Check the real state now (git status/log, tests/build) and build the handoff from the step notes and that checked state, never by summarizing the old handoff. Set `cwd:` to the exact current working directory, `status:` to in-progress, blocked or done, and `updated:`. Copy key values word for word, and fill in "Don't retry" and "Your preferences from this chat". Append new decisions to Decisions.md and new traps to Gotchas.md. Keep the handoff under about 6,000 characters: the hook reloads at most about 9,500 characters in all, and the Brief and rules share that room.
 4. **Self-check.** Re-read the handoff and ask: could a fresh agent continue from this alone, without this conversation? Fix any gaps.
 5. **Tell the user the name.** Before clearing, always say: "Handoff saved as **<Project> / <session folder>**. To continue in a new chat: `/vault:resume <session folder topic>`."
-6. **Clear the chat.**
+6. **Clear the chat.** Unless status is done, first mark this folder for a full reload. The desktop app's clear restarts the session as a plain startup, so without the mark the hook only points to the handoff:
+   ```
+   "${user_config.python}" "${CLAUDE_PLUGIN_ROOT}/scripts/vault_find.py" --vault "${user_config.vault_path}" "<current working directory>" --mark-reload
+   ```
    - **Claude desktop app:** say in one line that the chat will now clear and reload the handoff. Then call `mcp__ccd_session_mgmt__clear_session` with `session_id: "self"`; if the tool is only listed as deferred, load it first with ToolSearch `select:mcp__ccd_session_mgmt__clear_session`. The clear happens when this turn ends and needs the user's approval. The SessionStart hook then injects the Brief and Handoff, and the user's next message resumes from them.
    - **Terminal, or the tool is unavailable or refused:** tell the user to type `/clear` (not `/compact`); the hook will reload the handoff.
    - **Status is done:** say the work is finished. Nothing is reloaded after the clear.

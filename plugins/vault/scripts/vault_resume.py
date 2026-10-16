@@ -1,9 +1,11 @@
 """SessionStart hook for the Claude Vault plugin.
 
 Every session (startup, /clear, compaction) it can add the short note rules.
-On /clear or compaction it also adds the project's Brief.md and the newest
-00 Handoff.md whose `cwd:` matches the session's folder; on startup it only
-points to that handoff. Output is ASCII-safe JSON on stdout.
+On /clear, compaction, or the first start after /vault:save marked the folder,
+it also adds the project's Brief.md and the newest 00 Handoff.md whose `cwd:`
+matches the session's folder; on other startups it only points to that handoff.
+The mark exists because the desktop app's clear starts the session as
+"startup". Output is ASCII-safe JSON on stdout.
 
 Claude Code moves additionalContext over 10,000 characters into a file and
 shows Claude only a preview, so everything here is kept under MAX_CONTEXT.
@@ -49,6 +51,7 @@ def build(data, vault, inject_rules):
     if inject_rules:
         parts.append(rules_text(vault))
 
+    reload = vc.take_reload(vault, cwd) or source in ("clear", "compact")
     match = next((r for r in vc.handoffs(vault) if cwd and vc.norm(r[2].get("cwd")) == cwd), None)
     if match:
         mtime, path, fields = match
@@ -57,7 +60,7 @@ def build(data, vault, inject_rules):
         name = vc.handoff_name(path)
         if status == "done":
             pass
-        elif source in ("clear", "compact"):
+        elif reload:
             header = (
                 f"Resuming from the Claude Vault handoff \"{name}\" ({vault}). The resume steps in the "
                 "vault rules apply: check the real state first, restate the next step, honor \"Don't retry\"."
