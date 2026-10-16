@@ -36,10 +36,10 @@ Each chat has its own session folder, so parallel chats never share a handoff. A
 
 ## Install
 
-See **[INSTALL.md](INSTALL.md)** for install, first run, permissions, troubleshooting and uninstall. Short version, after this repo is on GitHub:
+See **[INSTALL.md](INSTALL.md)** for install, first run, permissions, troubleshooting and uninstall. Short version:
 
 ```
-/plugin marketplace add <github-owner>/<repo>
+/plugin marketplace add akakakjss/maximuse-vault-plugin
 /plugin install vault@maximuse
 /vault:setup
 ```

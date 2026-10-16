@@ -11,7 +11,7 @@
 In Claude Code (terminal or desktop app):
 
 ```
-/plugin marketplace add <github-owner>/<repo>
+/plugin marketplace add akakakjss/maximuse-vault-plugin
 /plugin install vault@maximuse
 ```
 
@@ -28,7 +28,7 @@ The install opens a dialog with three options. **Fill in all three**: an option 
 From a shell instead, set the options on the install command (the shell install never shows the dialog):
 
 ```
-claude plugin marketplace add <github-owner>/<repo>
+claude plugin marketplace add akakakjss/maximuse-vault-plugin
 claude plugin install vault@maximuse --config python=python --config "vault_path=C:\Users\you\Documents\Claude Vault" --config inject_rules=true
 ```
 
