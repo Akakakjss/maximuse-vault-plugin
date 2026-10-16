@@ -1,4 +1,4 @@
-# Installing Claude Vault
+# Installing Maximuse Vault
 
 ## 1. Before you start
 
@@ -21,7 +21,7 @@ The install opens a dialog with three options. **Fill in all three**: an option 
 
 | Option | What to enter |
 |---|---|
-| Vault folder (`vault_path`) | Where the vault lives or should be created. Windows example: `C:\Users\you\Documents\Claude Vault`. macOS/Linux: `~/Documents/Claude Vault`. If your Documents folder is synced by OneDrive, use the path you actually see in Explorer. |
+| Vault folder (`vault_path`) | Where the vault lives or should be created. Windows example: `C:\Users\you\Documents\Maximuse Vault`. macOS/Linux: `~/Documents/Maximuse Vault`. If your Documents folder is synced by OneDrive, use the path you actually see in Explorer. |
 | Python 3 command (`python`) | `python` on Windows (or the full path to `python.exe`), `python3` on macOS and Linux. |
 | Load the note rules every session (`inject_rules`) | On. Turn it off only if you paste the rules into your own CLAUDE.md (see [Design notes](README.md#design-notes)). |
 
@@ -29,7 +29,7 @@ From a shell instead, set the options on the install command (the shell install 
 
 ```
 claude plugin marketplace add akakakjss/maximuse-vault-plugin
-claude plugin install vault@maximuse --config python=python --config "vault_path=C:\Users\you\Documents\Claude Vault" --config inject_rules=true
+claude plugin install vault@maximuse --config python=python --config "vault_path=C:\Users\you\Documents\Maximuse Vault" --config inject_rules=true
 ```
 
 Change them later with `/plugin configure vault@maximuse`, or from a shell by piping JSON to `claude plugin configure vault@maximuse --values-stdin` (for example `{"inject_rules":"false"}`; options you leave out keep their values). `claude plugin configure vault@maximuse` on its own lists the options and whether each is set. The terminal, the desktop app's local sessions and VS Code read the same settings, so options set in one apply to all; if the desktop app's plugin browser doesn't ask for the options, set them from the terminal as above. Restart Claude Code (or start a new session) after installing or changing options.
@@ -69,13 +69,13 @@ Claude also writes short step notes on its own after commits, passing tests, dec
   ```json
   {
     "permissions": {
-      "additionalDirectories": ["~/Documents/Claude Vault"],
-      "allow": ["Read(~/Documents/Claude Vault/**)", "Edit(~/Documents/Claude Vault/**)"]
+      "additionalDirectories": ["~/Documents/Maximuse Vault"],
+      "allow": ["Read(~/Documents/Maximuse Vault/**)", "Edit(~/Documents/Maximuse Vault/**)"]
     }
   }
   ```
 
-  On Windows, a path outside your home folder is written like `//d/Notes/Claude Vault/**`.
+  On Windows, a path outside your home folder is written like `//d/Notes/Maximuse Vault/**`.
 - **Clearing in the desktop app:** the clear tool asks for approval every time. In **auto mode** it isn't asked at all: auto mode's safety check blocks it ("denied by the Claude Code auto mode classifier"), and `save` falls back to asking you to type `/clear`. To let `save` clear the chat in auto mode too, allow the tool in `~/.claude/settings.json`:
 
   ```json
