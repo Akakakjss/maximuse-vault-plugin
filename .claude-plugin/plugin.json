@@ -8,6 +8,9 @@
   },
   "homepage": "https://github.com/akakakjss/maximuse-vault-plugin",
   "repository": "https://github.com/akakakjss/maximuse-vault-plugin",
+  "documentationUrl": "https://github.com/akakakjss/maximuse-vault-plugin#readme",
+  "supportUrl": "https://github.com/akakakjss/maximuse-vault-plugin/issues",
+  "privacyPolicyUrl": "https://github.com/akakakjss/maximuse-vault-plugin#privacy",
   "license": "MIT",
   "keywords": [
     "obsidian",
