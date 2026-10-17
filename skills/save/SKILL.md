@@ -1,6 +1,6 @@
 ---
 name: save
-description: Checkpoint to the Maximuse Vault, then clear the chat. `/vault:save [name]` writes a step note, rebuilds this conversation's named handoff from the notes and freshly checked state, prints the resume command, then clears so the chat reloads from the handoff. Use when the user asks to save, checkpoint or update a handoff, or before clearing a long chat.
+description: Checkpoint to the Maximuse Vault, then clear the chat. `/maximuse:save [name]` writes a step note, rebuilds this conversation's named handoff from the notes and freshly checked state, prints the resume command, then clears so the chat reloads from the handoff. Use when the user asks to save, checkpoint or update a handoff, or before clearing a long chat.
 argument-hint: "[name]"
 ---
 
@@ -16,7 +16,7 @@ First run the finder with the current working directory, adding `--name <text>` 
 "${user_config.python}" "${CLAUDE_PLUGIN_ROOT}/scripts/vault_find.py" --vault "${user_config.vault_path}" "<current working directory>" --name <text>
 ```
 
-It prints the resolved `VAULT:` (use that path for every note), `TEMPLATES:` (the folder to copy note templates from), and any handoff already matching this folder. If it prints `VAULT MISSING`, tell the user to run `/vault:setup` and stop.
+It prints the resolved `VAULT:` (use that path for every note), `TEMPLATES:` (the folder to copy note templates from), and any handoff already matching this folder. If it prints `VAULT MISSING`, tell the user to run `/maximuse:setup` and stop.
 
 **Handoff names.** Every handoff is named by its session folder, shown as `<Project> / <YYYY-MM-DD> <topic>`. Each conversation has its own, so parallel chats never share one.
 
@@ -24,7 +24,7 @@ It prints the resolved `VAULT:` (use that path for every note), `TEMPLATES:` (th
 2. **Step note.** Write one for the work since the last step note (200 words at most).
 3. **Rebuild `00 Handoff.md` from the template.** Check the real state now (git status/log, tests/build) and build the handoff from the step notes and that checked state, never by summarizing the old handoff. Set `cwd:` to the exact current working directory, `status:` to in-progress, blocked or done, and `updated:`. Copy key values word for word, and fill in "Don't retry" and "Your preferences from this chat". Append new decisions to Decisions.md and new traps to Gotchas.md. Keep the handoff under about 6,000 characters: the hook reloads at most about 9,500 characters in all, and the Brief and rules share that room.
 4. **Self-check.** Re-read the handoff and ask: could a fresh agent continue from this alone, without this conversation? Fix any gaps.
-5. **Tell the user the name.** Before clearing, always say: "Handoff saved as **<Project> / <session folder>**. To continue in a new chat: `/vault:resume <session folder topic>`."
+5. **Tell the user the name.** Before clearing, always say: "Handoff saved as **<Project> / <session folder>**. To continue in a new chat: `/maximuse:resume <session folder topic>`."
 6. **Clear the chat.** Unless status is done, first mark this folder for a full reload. The desktop app's clear restarts the session as a plain startup, so without the mark the hook only points to the handoff:
    ```
    "${user_config.python}" "${CLAUDE_PLUGIN_ROOT}/scripts/vault_find.py" --vault "${user_config.vault_path}" "<current working directory>" --mark-reload

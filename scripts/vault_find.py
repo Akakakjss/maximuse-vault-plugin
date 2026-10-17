@@ -1,4 +1,4 @@
-"""Find Maximuse Vault handoffs for the /vault:resume and /vault:save skills.
+"""Find Maximuse Vault handoffs for the /maximuse:resume and /maximuse:save skills.
 
 Usage: vault_find.py [--vault PATH] [working-directory] [--name TEXT ...]
        vault_find.py [--vault PATH] [working-directory] --mark-reload
@@ -6,7 +6,7 @@ Prints the resolved vault, handoffs whose name ("Project / Session") contains
 TEXT, the handoff whose `cwd:` matches the folder (if any), and the most recent
 unfinished handoffs across the vault, each with its name and note paths.
 --mark-reload makes the hook reload the handoff on the folder's next session
-start (/vault:save runs it right before clearing).
+start (/maximuse:save runs it right before clearing).
 """
 import argparse
 import os
@@ -54,7 +54,7 @@ def main():
     print(f"VAULT: {vault}")
     print(f"CWD: {raw_cwd}")
     if not os.path.isdir(vault):
-        print("VAULT MISSING: the folder doesn't exist. Run /vault:setup first.")
+        print("VAULT MISSING: the folder doesn't exist. Run /maximuse:setup first.")
         return
     if args.mark_reload:
         vc.mark_reload(vault, raw_cwd)

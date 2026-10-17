@@ -95,7 +95,7 @@ def read_text(path):
         return f.read()
 
 
-# /vault:save marks its folder before clearing, because the desktop app's clear
+# /maximuse:save marks its folder before clearing, because the desktop app's clear
 # restarts the session as "startup", not "clear". The hook's next start in that
 # folder takes the mark and reloads the handoff as after a clear, once.
 def _reload_marks(vault):
