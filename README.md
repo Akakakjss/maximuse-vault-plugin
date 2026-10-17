@@ -48,6 +48,13 @@ Requires Python 3.8 or later and a recent Claude Code (tested with v2.1.292 on W
 
 **Where it works:** Claude Code (terminal, IDE extensions and the desktop app's Code tab). The hook and the Python scripts need Claude Code on your own computer; claude.ai chat skips hooks and can't run the scripts, so the plugin does nothing useful there.
 
+## Privacy
+
+Maximuse collects no data and sends nothing anywhere: it makes no network requests and has no server.
+- **What it reads:** your vault folder (the handoffs, Brief and notes you keep there) and, for `/maximuse:usage` only, the token counts in Claude Code's own session files on your computer.
+- **What it writes:** notes in your vault folder, and one small bookkeeping file, `_System/reload-pending.json`, in that folder.
+- **Where data goes:** everything stays on your computer. What Claude reads from your notes is part of your normal Claude Code conversation, handled under your agreement with Anthropic.
+
 ## Design notes
 
 **The always-on rules are injected by the hook, not pasted into CLAUDE.md.** A plugin can't edit your CLAUDE.md, and Claude Code doesn't load a CLAUDE.md shipped inside a plugin. Rules only inside a skill aren't enough either, because a skill loads only when invoked, so step notes during normal work would be skipped. The SessionStart hook adds the same ~550-token rules as `additionalContext` on startup, `/clear` and compaction: the same cost as a CLAUDE.md section, with no manual step, and the vault path filled in from your settings. If you'd rather keep them in CLAUDE.md, turn the "Load the note rules every session" option off and paste `rules/vault-rules.md` there.
