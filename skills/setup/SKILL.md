@@ -10,7 +10,7 @@ Configured vault: `${user_config.vault_path}`. Configured Python: `${user_config
 
 Requested folder: `$ARGUMENTS`
 
-1. **Pick the folder.** Use the requested folder if one was given, otherwise the configured vault. If the user gave a folder that differs from the configured one, say that the plugin option must point at it too, and tell them how: run `/plugin configure vault@maximuse` in Claude Code. The option takes effect in the next session. Until then, pass the new folder to the scripts below with `--vault`.
+1. **Pick the folder.** Use the requested folder if one was given, otherwise the configured vault. If the user gave a folder that differs from the configured one, say that the plugin option must point at it too, and tell them how: run `/plugin configure maximuse@maximuse` in Claude Code. The option takes effect in the next session. Until then, pass the new folder to the scripts below with `--vault`.
 2. **Preview, then write.** Run the setup script with `--dry-run` first and show the user what it will add:
 
    ```
@@ -25,4 +25,4 @@ Requested folder: `$ARGUMENTS`
    "${user_config.python}" "${CLAUDE_PLUGIN_ROOT}/scripts/vault_find.py" --vault "<folder>" "<current working directory>"
    ```
 
-4. **Report** the vault path, what was added or kept, and the three commands: `/vault:save [name]`, `/vault:resume <name>`, `/vault:usage`. Mention that Claude asks permission the first time it writes notes outside the project folder, and that the install guide shows how to allow the vault folder once.
+4. **Report** the vault path, what was added or kept, and the three commands: `/maximuse:save [name]`, `/maximuse:resume <name>`, `/maximuse:usage`. Mention that Claude asks permission the first time it writes notes outside the project folder, and that the install guide shows how to allow the vault folder once.

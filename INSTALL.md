@@ -12,7 +12,7 @@ In Claude Code (terminal or desktop app):
 
 ```
 /plugin marketplace add akakakjss/maximuse-vault-plugin
-/plugin install vault@maximuse
+/plugin install maximuse@maximuse
 ```
 
 To try it from a local copy before it's on GitHub, give the folder instead: `/plugin marketplace add C:\path\to\maximuse-vault-plugin` (Windows) or `/plugin marketplace add ~/maximuse-vault-plugin`.
@@ -29,17 +29,17 @@ From a shell instead, set the options on the install command (the shell install 
 
 ```
 claude plugin marketplace add akakakjss/maximuse-vault-plugin
-claude plugin install vault@maximuse --config python=python --config "vault_path=C:\Users\you\Documents\Maximuse Vault" --config inject_rules=true
+claude plugin install maximuse@maximuse --config python=python --config "vault_path=C:\Users\you\Documents\Maximuse Vault" --config inject_rules=true
 ```
 
-Change them later with `/plugin configure vault@maximuse`, or from a shell by piping JSON to `claude plugin configure vault@maximuse --values-stdin` (for example `{"inject_rules":"false"}`; options you leave out keep their values). `claude plugin configure vault@maximuse` on its own lists the options and whether each is set. The terminal, the desktop app's local sessions and VS Code read the same settings, so options set in one apply to all; if the desktop app's plugin browser doesn't ask for the options, set them from the terminal as above. Restart Claude Code (or start a new session) after installing or changing options.
+Change them later with `/plugin configure maximuse@maximuse`, or from a shell by piping JSON to `claude plugin configure maximuse@maximuse --values-stdin` (for example `{"inject_rules":"false"}`; options you leave out keep their values). `claude plugin configure maximuse@maximuse` on its own lists the options and whether each is set. The terminal, the desktop app's local sessions and VS Code read the same settings, so options set in one apply to all; if the desktop app's plugin browser doesn't ask for the options, set them from the terminal as above. Restart Claude Code (or start a new session) after installing or changing options.
 
 ## 3. First run
 
 Start a new session and run:
 
 ```
-/vault:setup
+/maximuse:setup
 ```
 
 It shows what it will create, then creates `Home.md`, `_System/Templates/` and `Projects/`. Pointing it at a folder you already use as a vault only adds the missing pieces; it never overwrites a file. Open the folder in Obsidian ("Open folder as vault") if you use Obsidian.
@@ -48,9 +48,9 @@ It shows what it will create, then creates `Home.md`, `_System/Templates/` and `
 
 | Command | When |
 |---|---|
-| `/vault:save [name]` | The chat is getting long (Claude suggests it around 250k tokens) or you're stepping away. Writes the notes, then clears. |
-| `/vault:resume <part of name>` | You're in a new chat and want to continue earlier work. With no name, it lists unfinished handoffs and asks. |
-| `/vault:usage` | You want to see whether it's working. The first run saves a baseline; later runs compare with it. |
+| `/maximuse:save [name]` | The chat is getting long (Claude suggests it around 250k tokens) or you're stepping away. Writes the notes, then clears. |
+| `/maximuse:resume <part of name>` | You're in a new chat and want to continue earlier work. With no name, it lists unfinished handoffs and asks. |
+| `/maximuse:usage` | You want to see whether it's working. The first run saves a baseline; later runs compare with it. |
 
 Claude also writes short step notes on its own after commits, passing tests, decisions and finished requests.
 
@@ -58,11 +58,11 @@ Claude also writes short step notes on its own after commits, passing tests, dec
 
 - **Desktop app:** Claude calls the app's clear tool, which asks you to approve. The chat clears when Claude's turn ends; the hook reloads the Brief and handoff, and your next message continues from them. The app restarts the session as a normal start, so `save` leaves a one-time mark in `_System/reload-pending.json` just before clearing to tell the hook to reload.
 - **Terminal:** Claude saves the notes and asks you to type `/clear` yourself. Use `/clear`, not `/compact`: compaction replaces the conversation with a lossy summary, while the handoff was built to be resumed from.
-- Either way, `save` prints the resume command, e.g. `/vault:resume login fix`, which works from any other chat or folder.
+- Either way, `save` prints the resume command, e.g. `/maximuse:resume login fix`, which works from any other chat or folder.
 
 ## 5. Permissions you'll see
 
-- **At install:** Claude Code asks you to trust the plugin. The plugin's hook then runs your configured Python with `vault_resume.py` at every session start, `/clear` and compaction, without asking. It reads the vault and prints text for Claude, and uses no network. The only file it writes is `_System/reload-pending.json` in the vault, where it removes the reload mark that `/vault:save` left (and marks older than a week).
+- **At install:** Claude Code asks you to trust the plugin. The plugin's hook then runs your configured Python with `vault_resume.py` at every session start, `/clear` and compaction, without asking. It reads the vault and prints text for Claude, and uses no network. The only file it writes is `_System/reload-pending.json` in the vault, where it removes the reload mark that `/maximuse:save` left (and marks older than a week).
 - **Running the scripts:** the first time Claude runs `vault_find.py`, `vault_setup.py` or `usage_sum.py`, you get a Bash permission prompt. "Yes, and don't ask again" is fine for these.
 - **Writing notes:** the vault is usually outside your project folder, so Claude asks before each write there. To allow it once and for all, add the vault to your user settings (`~/.claude/settings.json`), adjusting the path:
 
@@ -92,12 +92,12 @@ Claude also writes short step notes on its own after commits, passing tests, dec
 
 | Symptom | Fix |
 |---|---|
-| `SessionStart hook error` mentioning `Plugin option "python" isn't set` (or `vault_path`, `inject_rules`) | Set all three options with `/plugin configure vault@maximuse`, then restart. |
+| `SessionStart hook error` mentioning `Plugin option "python" isn't set` (or `vault_path`, `inject_rules`) | Set all three options with `/plugin configure maximuse@maximuse`, then restart. |
 | Hook error saying the command can't be found or spawned | The Python option doesn't name a real executable. Use `python` (Windows) or `python3`, or the full path. On Windows it must be a real `.exe`, not a `.bat`/`.cmd` shim. |
-| Nothing loads after `/clear` | The handoff's `cwd:` must be this exact folder (case and slashes don't matter on Windows). Run `/vault:resume <name>` once in this folder; it re-points the handoff. Handoffs with `status: done` are never reloaded. |
+| Nothing loads after `/clear` | The handoff's `cwd:` must be this exact folder (case and slashes don't matter on Windows). Run `/maximuse:resume <name>` once in this folder; it re-points the handoff. Handoffs with `status: done` are never reloaded. |
 | Desktop app: `save` says the clear was blocked or "denied by the Claude Code auto mode classifier" | Auto mode blocks the clear tool. Type `/clear` yourself, leave auto mode before saving, or allow the tool (section 5). |
 | Desktop app: the chat cleared but nothing reloaded yet | A cleared chat starts its new session, and runs the hook, only when you send the next message. Send one; the handoff loads then. |
-| "The vault folder … doesn't exist yet" at every start | Run `/vault:setup`, or fix the Vault folder option. |
+| "The vault folder … doesn't exist yet" at every start | Run `/maximuse:setup`, or fix the Vault folder option. |
 | Rules or handoff appear twice | The personal setup is still installed. See the next section. |
 | Claude says the handoff was cut off | The hook loads at most about 9,500 characters in all; Claude Code would otherwise show only a preview. Claude reads the full note from the path given. Keep handoffs short; the save skill aims for under 6,000 characters. |
 | Claude Code won't start in a test folder (Windows) | Very long Windows paths break startup. Use a short folder such as `C:\cvtest`. |
@@ -106,11 +106,11 @@ Claude also writes short step notes on its own after commits, passing tests, dec
 ## 7. Uninstall
 
 ```
-/plugin uninstall vault@maximuse
+/plugin uninstall maximuse@maximuse
 /plugin marketplace remove maximuse
 ```
 
-(or `claude plugin uninstall vault@maximuse` and `claude plugin marketplace remove maximuse` in a shell). This removes the plugin, its hook and its options. **Your vault folder is not touched**; delete it yourself if you no longer want the notes. Remove any vault permission rules you added to `settings.json`.
+(or `claude plugin uninstall maximuse@maximuse` and `claude plugin marketplace remove maximuse` in a shell). This removes the plugin, its hook and its options. **Your vault folder is not touched**; delete it yourself if you no longer want the notes. Remove any vault permission rules you added to `settings.json`.
 
 ## Moving from the personal setup
 
@@ -118,8 +118,8 @@ If you used the hand-installed version (a `vault_resume.py` hook in `~/.claude/s
 
 1. Back up `~/.claude/settings.json`, `~/.claude/CLAUDE.md` and `~/.claude/skills/vault/`.
 2. Remove the `SessionStart` entry that runs `vault_resume.py` from `settings.json`.
-3. Move `~/.claude/skills/vault/` out of `~/.claude/skills/` (otherwise `/vault` and `/vault:*` both exist).
+3. Move `~/.claude/skills/vault/` out of `~/.claude/skills/` (otherwise `/vault` and `/maximuse:*` both exist).
 4. Remove the "Claude Vault" section from CLAUDE.md, or keep it and turn the plugin's rules option off.
-5. Install the plugin with the Vault folder option set to your existing vault, then run `/vault:setup` on it: it adds nothing you already have, and existing handoffs keep working because the note format is unchanged.
+5. Install the plugin with the Vault folder option set to your existing vault, then run `/maximuse:setup` on it: it adds nothing you already have, and existing handoffs keep working because the note format is unchanged.
 
 To try the plugin without touching your real profile first, see [TESTING.md](TESTING.md).

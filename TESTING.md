@@ -1,5 +1,7 @@
 # Test plan
 
+The "Already done" sections below record runs of 0.1.0–0.3.0, when the plugin was called `vault` (commands `/vault:*`, install id `vault@maximuse`). Since 0.4.0 it is `maximuse`; the steps further down use the new names.
+
 Everything here runs in a throwaway profile and a throwaway vault, so your real `~/.claude` and your real vault are never touched.
 
 ## Already done (Linux, Claude Code v2.1.301, Python 3)
@@ -55,7 +57,7 @@ python C:\path\to\maximuse-vault-plugin\tests\run_tests.py
 # 2. Install from the local copy
 claude plugin validate --strict C:\path\to\maximuse-vault-plugin
 claude plugin marketplace add C:\path\to\maximuse-vault-plugin
-claude plugin install vault@maximuse --config python=python --config vault_path=C:\cvtest\Vault --config inject_rules=true
+claude plugin install maximuse@maximuse --config python=python --config vault_path=C:\cvtest\Vault --config inject_rules=true
 
 # 3. Hook through Claude Code, without a conversation
 cd C:\cvtest\work
@@ -69,15 +71,15 @@ Then, still in that PowerShell window (so the throwaway profile is used):
 
 | # | Do | Expect |
 |---|---|---|
-| 4 | `claude` in `C:\cvtest\work`, then `/vault:setup` | Dry-run list, then `CREATED new vault: C:\cvtest\Vault`. |
-| 5 | Ask Claude to `git init` and create a small file, then `/vault:save hook test` | A session folder `Projects\work\Sessions\<date> hook test\` with `00 Handoff.md` (`cwd: C:\cvtest\work`) and a step note; the message "Handoff saved as **work / <date> hook test**" and the resume command; then a request to type `/clear`. `C:\cvtest\Vault\_System\reload-pending.json` holds `"c:/cvtest/work"`. Don't type `/clear` yet. |
+| 4 | `claude` in `C:\cvtest\work`, then `/maximuse:setup` | Dry-run list, then `CREATED new vault: C:\cvtest\Vault`. |
+| 5 | Ask Claude to `git init` and create a small file, then `/maximuse:save hook test` | A session folder `Projects\work\Sessions\<date> hook test\` with `00 Handoff.md` (`cwd: C:\cvtest\work`) and a step note; the message "Handoff saved as **work / <date> hook test**" and the resume command; then a request to type `/clear`. `C:\cvtest\Vault\_System\reload-pending.json` holds `"c:/cvtest/work"`. Don't type `/clear` yet. |
 | 5b | In a second PowerShell window with the same `CLAUDE_CONFIG_DIR`: `cd C:\cvtest\work`, `claude --init-only --debug-file C:\cvtest\mark.log`, then `Select-String -Path C:\cvtest\mark.log -Pattern "Resuming from the Maximuse Vault"`. Run `--init-only` once more. | This is what the desktop app's clear looks like (a plain startup). The first run matches "Resuming from the Maximuse Vault handoff" and `reload-pending.json` becomes `{}`; the second run gets only the rules and a pointer. |
 | 6 | Back in the first window: type `/clear`, then ask "what's next?" | Claude knows the goal and next step without reading anything, then checks git status before acting. |
-| 7 | `cd C:\cvtest\other`, then `claude -p "/vault:resume hook test" --max-turns 8 --add-dir C:\cvtest\Vault --add-dir C:\cvtest\work --permission-mode acceptEdits --allowedTools "Bash(python *)" "PowerShell(python *)"` (headless runs can't answer permission prompts; on Windows Claude may run Python through PowerShell) | Finds the handoff by name, re-points its `cwd:` to `C:\cvtest\other` with a note under "Checked state", reports the next step. |
-| 8 | `claude -p "/vault:resume" --allowedTools "Bash(python *)" "PowerShell(python *)"` | Lists unfinished handoffs and asks which one; doesn't pick one itself. |
-| 9 | `/vault:usage` twice | First run writes `C:\cvtest\Vault\_System\Usage baseline.md`; second run prints a comparison table. |
-| 10 | `/plugin configure vault@maximuse` and turn rules off, or from PowerShell: `'{"inject_rules":"false"}' \| claude plugin configure vault@maximuse --values-stdin`. Then start a new session. | No rules at startup; after `/clear` (or a save) in a folder with a handoff, only the Brief and handoff. |
-| 11 | `claude plugin uninstall vault@maximuse` | Plugin gone; `C:\cvtest\Vault` still there. |
+| 7 | `cd C:\cvtest\other`, then `claude -p "/maximuse:resume hook test" --max-turns 8 --add-dir C:\cvtest\Vault --add-dir C:\cvtest\work --permission-mode acceptEdits --allowedTools "Bash(python *)" "PowerShell(python *)"` (headless runs can't answer permission prompts; on Windows Claude may run Python through PowerShell) | Finds the handoff by name, re-points its `cwd:` to `C:\cvtest\other` with a note under "Checked state", reports the next step. |
+| 8 | `claude -p "/maximuse:resume" --allowedTools "Bash(python *)" "PowerShell(python *)"` | Lists unfinished handoffs and asks which one; doesn't pick one itself. |
+| 9 | `/maximuse:usage` twice | First run writes `C:\cvtest\Vault\_System\Usage baseline.md`; second run prints a comparison table. |
+| 10 | `/plugin configure maximuse@maximuse` and turn rules off, or from PowerShell: `'{"inject_rules":"false"}' \| claude plugin configure maximuse@maximuse --values-stdin`. Then start a new session. | No rules at startup; after `/clear` (or a save) in a folder with a handoff, only the Brief and handoff. |
+| 11 | `claude plugin uninstall maximuse@maximuse` | Plugin gone; `C:\cvtest\Vault` still there. |
 
 Clean up: close the window (or `Remove-Item Env:CLAUDE_CONFIG_DIR`) and delete `C:\cvtest`.
 
@@ -85,8 +87,8 @@ Clean up: close the window (or `Remove-Item Env:CLAUDE_CONFIG_DIR`) and delete `
 
 The desktop app uses your real profile, so test it after [moving from the personal setup](INSTALL.md#moving-from-the-personal-setup):
 
-1. In a desktop chat with some work in it, run `/vault:save desktop test`.
-2. Approve the clear prompt. Expect the chat to clear after Claude's turn and the next message to continue from the handoff. The app restarts the session as a plain startup, so the full reload relies on the mark `/vault:save` writes just before clearing (0.2.0): Claude should know the next step without opening any notes. If it only knows that a handoff exists, the mark wasn't written or was used up by another session start in that folder.
+1. In a desktop chat with some work in it, run `/maximuse:save desktop test`.
+2. Approve the clear prompt. Expect the chat to clear after Claude's turn and the next message to continue from the handoff. The app restarts the session as a plain startup, so the full reload relies on the mark `/maximuse:save` writes just before clearing (0.2.0): Claude should know the next step without opening any notes. If it only knows that a handoff exists, the mark wasn't written or was used up by another session start in that folder.
 3. If the clear tool is missing or refused, Claude should fall back to asking you to type `/clear`.
 4. If a desktop session shows `Plugin option ... isn't set`, set the options from the terminal (INSTALL.md, section 2) and start a new desktop session.
 

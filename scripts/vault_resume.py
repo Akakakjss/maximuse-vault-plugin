@@ -1,7 +1,7 @@
 """SessionStart hook for the Maximuse Vault plugin.
 
 Every session (startup, /clear, compaction) it can add the short note rules.
-On /clear, compaction, or the first start after /vault:save marked the folder,
+On /clear, compaction, or the first start after /maximuse:save marked the folder,
 it also adds the project's Brief.md and the newest 00 Handoff.md whose `cwd:`
 matches the session's folder; on other startups it only points to that handoff.
 The mark exists because the desktop app's clear starts the session as
@@ -45,7 +45,7 @@ def build(data, vault, inject_rules):
     if not os.path.isdir(vault):
         return (
             f"Maximuse Vault plugin: the vault folder {vault} doesn't exist yet, so no notes are kept. "
-            "The user can run /vault:setup to create it or adopt an existing folder."
+            "The user can run /maximuse:setup to create it or adopt an existing folder."
         )
 
     if inject_rules:

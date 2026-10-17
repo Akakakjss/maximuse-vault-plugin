@@ -84,7 +84,7 @@ def main():
 
         print("hook: vault missing")
         ctx = hook(os.path.join(tmp, "nope"), {"source": "startup", "cwd": work})
-        check(ctx is not None and "/vault:setup" in ctx, "points to /vault:setup")
+        check(ctx is not None and "/maximuse:setup" in ctx, "points to /maximuse:setup")
 
         print("hook: startup, no handoff")
         ctx = hook(vault, {"source": "startup", "cwd": work})
@@ -111,7 +111,7 @@ def main():
         ctx = hook(vault, {"source": "clear", "cwd": os.path.join(tmp, "other")})
         check("pytest -k login" not in ctx, "other folder: handoff not injected")
 
-        print("hook: reload mark from /vault:save (desktop clear arrives as startup)")
+        print("hook: reload mark from /maximuse:save (desktop clear arrives as startup)")
         marks = os.path.join(vault, "_System", "reload-pending.json")
         code, out, _ = run("vault_find.py", ["--vault", vault, work, "--mark-reload"])
         check(code == 0 and b"RELOAD MARKED" in out and os.path.isfile(marks), "finder writes the mark")

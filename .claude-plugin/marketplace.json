@@ -4,7 +4,7 @@
   "owner": { "name": "Kaleb Tessera" },
   "plugins": [
     {
-      "name": "vault",
+      "name": "maximuse",
       "source": "./",
       "description": "Obsidian-vault step notes and handoffs: clear long chats early and resume by name, for about twice the work per usage limit.",
       "category": "productivity",
