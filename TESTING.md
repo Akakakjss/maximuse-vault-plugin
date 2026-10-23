@@ -40,7 +40,16 @@ Run on 2026-10-16 with 0.2.0 installed from GitHub (`claude plugin marketplace a
 
 The plugin moved to the repository root. Installed from the local folder into the same throwaway profile: `claude plugin details vault@maximuse` showed "Maximuse Vault (vault) 0.3.0" with 4 skills and the SessionStart hook. `claude --init-only` in `C:\cvtest\other` gave rules + pointer (2,645 chars); after `--mark-reload`, "Resuming from the Maximuse Vault handoff" (4,635 chars) and the mark was used. The hook ran `scripts/vault_resume.py` from the root.
 
-**Not yet tested:** step 11 (uninstall) on 0.2.0 or later. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
+## Already done (Windows, 0.5.0 named handoffs, Claude Code v2.1.304)
+
+Run on 2026-10-23 in the throwaway profile (`CLAUDE_CONFIG_DIR=C:\cvtest\cfg`, marketplace = the local repo folder on branch `named-handoffs-codex`), fresh vault `C:\cvtest\Vault5`, git repo `C:\cvtest\shop`. Each step was a separate headless `claude -p` session with `--add-dir C:\cvtest\Vault5`.
+
+- `/maximuse:setup checkout redesign` with the vault missing: created the vault, then `Projects\shop\Sessions\checkout redesign\00 Handoff.md` (`cwd: C:\cvtest\shop`, title "Handoff: checkout redesign"), the shop Brief, Decisions and Gotchas, and the Home.md link.
+- After a new commit (`bd43697`), `/maximuse:save checkout redesign` in a new session: updated that same folder (no new or renamed folder), added `01 Discount on cart total.md`, wrote the reload mark `{"c:/cvtest/shop": …}`, and asked for `/clear` (no desktop clear tool in the CLI).
+- Next session start in `C:\cvtest\shop`: the hook injected "Resuming from the Maximuse Vault handoff"; with no tools, Claude named "shop / checkout redesign", `bd43697` and the next step. The mark was used (`{}`).
+- `/maximuse:resume checkout redesign and then just tell me the next step, don't change any files`: took "checkout redesign" as the name and the rest as the request; checked git; changed nothing.
+
+**Not yet tested:** step 11 (uninstall) on 0.2.0 or later; 0.5.0 in the desktop app; `universal/install.py` inside Codex itself. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
 
 ## On the Windows PC
 
