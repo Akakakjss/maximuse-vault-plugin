@@ -30,6 +30,15 @@ For tools that only read a project's own `AGENTS.md` (Cursor, Copilot, Jules, Ai
 writable_roots = ['C:\Users\you\Documents\Maximuse Vault']
 ```
 
+**On native Windows, also pick a Windows sandbox.** Without one, Codex ran `workspace-write` as `read-only` and blocked every command, even reading the skill (Codex CLI 0.164.0). Add to the same file:
+
+```toml
+[windows]
+sandbox = "unelevated"
+```
+
+`unelevated` needs no administrator setup: commands run with a restricted copy of your own user's permissions, limited to the workspace and `writable_roots`. `elevated` is stronger, but its setup creates sandbox users and changes firewall and local policy, and needs administrator approval. See OpenAI's [Windows sandbox docs](https://learn.chatgpt.com/docs/windows/windows-sandbox).
+
 ## Use
 
 | Codex | Other AGENTS.md tools | Does |

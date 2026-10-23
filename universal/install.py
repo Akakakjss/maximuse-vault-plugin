@@ -132,7 +132,7 @@ def install(args):
     for path in agents_files(args):
         put_block(path, block, dry)
 
-    print()
+    print(flush=True)
     cmd = [sys.executable, os.path.join(REPO, "scripts", "vault_setup.py"), "--vault", vault] + (["--dry-run"] if dry else [])
     subprocess.run(cmd, check=False)
     print()
@@ -143,6 +143,10 @@ def install(args):
     print("  [sandbox_workspace_write]")
     # A TOML literal string ('...') keeps Windows backslashes as they are.
     print(f"  writable_roots = ['{vault}']")
+    if os.name == "nt":
+        print("On native Windows, also choose a sandbox, or Codex runs read-only and blocks every command:")
+        print("  [windows]")
+        print('  sandbox = "unelevated"     # no admin setup; "elevated" is stronger but needs admin')
 
 
 def uninstall(args):

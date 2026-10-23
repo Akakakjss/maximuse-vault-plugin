@@ -53,7 +53,7 @@ def norm(path):
 
 def frontmatter(path):
     fields = {}
-    with open(path, encoding="utf-8", errors="replace") as f:
+    with open(path, encoding="utf-8-sig", errors="replace") as f:
         if f.readline().strip() != "---":
             return fields
         for line in f:
@@ -103,7 +103,7 @@ def safe_name(name):
 
 
 def read_text(path):
-    with open(path, encoding="utf-8", errors="replace") as f:
+    with open(path, encoding="utf-8-sig", errors="replace") as f:
         return f.read()
 
 

@@ -49,7 +49,19 @@ Run on 2026-10-23 in the throwaway profile (`CLAUDE_CONFIG_DIR=C:\cvtest\cfg`, m
 - Next session start in `C:\cvtest\shop`: the hook injected "Resuming from the Maximuse Vault handoff"; with no tools, Claude named "shop / checkout redesign", `bd43697` and the next step. The mark was used (`{}`).
 - `/maximuse:resume checkout redesign and then just tell me the next step, don't change any files`: took "checkout redesign" as the name and the rest as the request; checked git; changed nothing.
 
-**Not yet tested:** step 11 (uninstall) on 0.2.0 or later; 0.5.0 in the desktop app; `universal/install.py` inside Codex itself. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
+## Already done (Windows, 0.5.0 universal install in Codex CLI 0.164.0)
+
+Run on 2026-10-23 in an isolated Codex home (`CODEX_HOME=C:\cvtest\codexhome\.codex`, `HOME` and `USERPROFILE=C:\cvtest\codexhome`, signed in with ChatGPT), shared vault `C:\cvtest\Vault5`, git repo `C:\cvtest\shop2`. Each step was a separate `codex exec -s workspace-write`.
+
+- `install.py --vault C:\cvtest\Vault5 --home … --codex-home … --skills-dir …`: dry run, then install; config.toml got `writable_roots = ['C:\cvtest\Vault5']`.
+- First `$maximuse-setup codex checkout`: Codex found the skill but ran `sandbox: read-only` and blocked every command ("blocked by policy"). After adding `[windows] sandbox = "unelevated"`: `sandbox: workspace-write [workdir, /tmp, $TMPDIR, C:\cvtest\Vault5]`, and the script created `Projects\shop2\Sessions\codex checkout\00 Handoff.md`.
+- Codex rewrote the handoff with PowerShell `Set-Content -Encoding utf8`, which adds a UTF-8 BOM; the finder then showed `MATCH: none` and status `unknown`. Fixed: notes are read as `utf-8-sig`, with a regression test.
+- After a commit (`7fcdb44`), `$maximuse-save codex checkout`: same folder, step note `02`, told the user to start a new chat.
+- `$maximuse-resume codex checkout and then just tell me the next step, do not change any files`: name parsed, checks re-run, nothing changed.
+- Claude Code (test profile, same vault) ran `/maximuse:resume codex checkout …` and reported the same commit and next step.
+- `install.py --uninstall`: removed `.maximuse`, the three skills and the AGENTS.md block; the vault was kept. The real `~/.codex` and `~/.agents` had no Maximuse files at any point.
+
+**Not yet tested:** step 11 (uninstall) on 0.2.0 or later; 0.5.0 in the desktop app; Codex on macOS/Linux; Cursor or another AGENTS.md tool. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
 
 ## On the Windows PC
 

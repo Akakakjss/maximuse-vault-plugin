@@ -205,6 +205,10 @@ def main():
         check(os.path.isfile(os.path.join(vault, "Projects", "shop", "Sessions", "Fix a b quotes", "00 Handoff.md")), "characters Windows forbids are dropped")
         code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "Notes", "--cwd", os.path.expanduser("~")])
         check(b"HANDOFF CREATED: General / Notes" in out, "home folder goes to the General project")
+        with open(named, "w", encoding="utf-8-sig") as f:  # PowerShell 5.1 Set-Content -Encoding utf8 adds a BOM
+            f.write(text)
+        code, out, _ = run("vault_find.py", ["--vault", vault, shop])
+        check(b"MATCH (this folder):" in out and b"status: in-progress" in out, "handoff saved with a UTF-8 BOM still matches")
         code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "???", "--cwd", shop])
         check(b"HANDOFF NAME EMPTY" in out, "a name with nothing usable is refused")
 
