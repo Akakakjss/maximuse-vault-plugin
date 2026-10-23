@@ -90,6 +90,18 @@ def handoff_name(handoff_path):
     return f"{os.path.basename(project_dir(handoff_path))} / {os.path.basename(session_dir(handoff_path))}"
 
 
+def is_exact_name(handoff_path, name):
+    """True if name is this handoff's session folder or its full "Project / Session" name."""
+    name = " ".join(name.split()).lower()
+    return bool(name) and name in (os.path.basename(session_dir(handoff_path)).lower(), handoff_name(handoff_path).lower())
+
+
+def safe_name(name):
+    """The user's name for a handoff or project as a folder name: only characters Windows forbids are dropped."""
+    name = "".join(" " if c in '<>:"/\\|?*' or ord(c) < 32 else c for c in name or "")
+    return " ".join(name.split()).rstrip(". ")
+
+
 def read_text(path):
     with open(path, encoding="utf-8", errors="replace") as f:
         return f.read()

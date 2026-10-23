@@ -3,7 +3,8 @@
 Usage: vault_find.py [--vault PATH] [working-directory] [--name TEXT ...]
        vault_find.py [--vault PATH] [working-directory] --mark-reload
 Prints the resolved vault, handoffs whose name ("Project / Session") contains
-TEXT, the handoff whose `cwd:` matches the folder (if any), and the most recent
+TEXT (exact names first, marked "exact: yes"), the handoff whose `cwd:`
+matches the folder (if any), and the most recent
 unfinished handoffs across the vault, each with its name and note paths.
 --mark-reload makes the hook reload the handoff on the folder's next session
 start (/maximuse:save runs it right before clearing).
@@ -69,9 +70,12 @@ def main():
     if name:
         wanted = name.lower()
         named = [r for r in rows if wanted in vc.handoff_name(r[1]).lower()]
+        named.sort(key=lambda r: not vc.is_exact_name(r[1], name))
         print(f"NAME '{name}': {len(named)} match(es)")
         for r in named[:5]:
             print(describe(*r))
+            if vc.is_exact_name(r[1], name):
+                print("  exact: yes")
     match = next((r for r in rows if cwd and vc.norm(r[2].get("cwd")) == cwd), None)
     print("MATCH (this folder):" if match else "MATCH: none")
     if match:

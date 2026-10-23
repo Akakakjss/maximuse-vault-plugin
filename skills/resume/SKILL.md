@@ -8,7 +8,9 @@ argument-hint: "<part of the handoff name>"
 
 Vault: `${user_config.vault_path}`. Note layout and rules come from the plugin's SessionStart hook ("Maximuse Vault: session notes and handoffs"); the full text is in `${CLAUDE_PLUGIN_ROOT}/rules/vault-rules.md`.
 
-**Handoff names.** Every handoff is named by its session folder, shown as `<Project> / <YYYY-MM-DD> <topic>`. Each conversation has its own, so parallel chats never share one. The user picks one by typing any unique part of the name, e.g. `/maximuse:resume vault setup`.
+**Handoff names.** Every handoff is named by its session folder, shown as `<Project> / <session folder>`: the name the user gave `/maximuse:setup <name>` or `/maximuse:save <name>`, or `<YYYY-MM-DD> <topic>` when they gave none. Each conversation has its own, so parallel chats never share one. The user picks one by typing any unique part of the name, e.g. `/maximuse:resume vault setup`.
+
+If the text after the command is a name followed by a request (e.g. `/maximuse:resume login fix can you add tests`), the name is its first few words: pass the longest run of first words that finds a match, and treat the rest as the user's task.
 
 Requested name: `$ARGUMENTS`
 
