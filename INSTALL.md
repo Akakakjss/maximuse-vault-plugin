@@ -44,11 +44,20 @@ Start a new session and run:
 
 It shows what it will create, then creates `Home.md`, `_System/Templates/` and `Projects/`. Pointing it at a folder you already use as a vault only adds the missing pieces; it never overwrites a file. Open the folder in Obsidian ("Open folder as vault") if you use Obsidian.
 
+Then, whenever you start a piece of work, name its handoff:
+
+```
+/maximuse:setup checkout redesign
+```
+
+This creates `Projects/<this folder's name>/Sessions/checkout redesign/00 Handoff.md`, named exactly as you typed it. Later, `/maximuse:save checkout redesign` updates that same handoff and clears the chat, and `/maximuse:resume checkout redesign` continues it in any chat. (Text that looks like a folder path, such as `/maximuse:setup D:\Notes\Vault`, sets up the vault there instead.)
+
 ## 4. Everyday use
 
 | Command | When |
 |---|---|
-| `/maximuse:save [name]` | The chat is getting long (Claude suggests it around 250k tokens) or you're stepping away. Writes the notes, then clears. |
+| `/maximuse:setup <name>` | You start a piece of work. Creates its handoff under exactly that name. |
+| `/maximuse:save [name]` | The chat is getting long (Claude suggests it around 250k tokens) or you're stepping away. Writes the notes into the handoff with that name, then clears. |
 | `/maximuse:resume <part of name>` | You're in a new chat and want to continue earlier work. With no name, it lists unfinished handoffs and asks. |
 | `/maximuse:usage` | You want to see whether it's working. The first run saves a baseline; later runs compare with it. |
 
