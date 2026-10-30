@@ -49,6 +49,15 @@ Run on 2026-10-23 in the throwaway profile (`CLAUDE_CONFIG_DIR=C:\cvtest\cfg`, m
 - Next session start in `C:\cvtest\shop`: the hook injected "Resuming from the Maximuse Vault handoff"; with no tools, Claude named "shop / checkout redesign", `bd43697` and the next step. The mark was used (`{}`).
 - `/maximuse:resume checkout redesign and then just tell me the next step, don't change any files`: took "checkout redesign" as the name and the rest as the request; checked git; changed nothing.
 
+## Already done (Windows, 0.5.0 setup from a task, chat titles)
+
+Run on 2026-10-30 in the same throwaway profile and vault, repo `C:\cvtest\shop3`, headless `claude -p` per step.
+
+- `/maximuse:setup add a tax_rate parameter to cart.total and commit it`: Claude named the handoff `Cart total tax rate` (`chat: Cart total tax rate`), did the task (commit `89662e0`), wrote a step note and set `status: done`. No chat rename in the terminal, as designed.
+- `/maximuse:setup "Free shipping rule" add free shipping …`: used the quoted name exactly; commit `7c8c8ed`.
+- New session, `/maximuse:resume shipping free rule and then just tell me the commit and next step, don't change any files`: found **shop3 / Free shipping rule** from the reordered words, reported `7c8c8ed`, changed nothing.
+- Finder with no name: the unfinished list is numbered (`1. shop2 / codex checkout …`).
+
 ## Already done (Windows, 0.5.0 universal install in Codex CLI 0.164.0)
 
 Run on 2026-10-23 in an isolated Codex home (`CODEX_HOME=C:\cvtest\codexhome\.codex`, `HOME` and `USERPROFILE=C:\cvtest\codexhome`, signed in with ChatGPT), shared vault `C:\cvtest\Vault5`, git repo `C:\cvtest\shop2`. Each step was a separate `codex exec -s workspace-write`.
@@ -61,7 +70,7 @@ Run on 2026-10-23 in an isolated Codex home (`CODEX_HOME=C:\cvtest\codexhome\.co
 - Claude Code (test profile, same vault) ran `/maximuse:resume codex checkout …` and reported the same commit and next step.
 - `install.py --uninstall`: removed `.maximuse`, the three skills and the AGENTS.md block; the vault was kept. The real `~/.codex` and `~/.agents` had no Maximuse files at any point.
 
-**Not yet tested:** step 11 (uninstall) on 0.2.0 or later; 0.5.0 in the desktop app; Codex on macOS/Linux; Cursor or another AGENTS.md tool. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
+**Not yet tested:** step 11 (uninstall) on 0.2.0 or later; 0.5.0 in the desktop app (including the chat rename by setup and resume); Codex on macOS/Linux; Cursor or another AGENTS.md tool. The desktop app's `/vault:save` → clear → reload passed with 0.2.0 on the real profile (2026-10-16).
 
 ## On the Windows PC
 

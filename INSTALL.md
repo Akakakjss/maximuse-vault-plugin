@@ -44,21 +44,21 @@ Start a new session and run:
 
 It shows what it will create, then creates `Home.md`, `_System/Templates/` and `Projects/`. Pointing it at a folder you already use as a vault only adds the missing pieces; it never overwrites a file. Open the folder in Obsidian ("Open folder as vault") if you use Obsidian.
 
-Then, whenever you start a piece of work, name its handoff:
+Then start each piece of work by telling Claude what to do:
 
 ```
-/maximuse:setup checkout redesign
+/maximuse:setup add discount codes to the cart
 ```
 
-This creates `Projects/<this folder's name>/Sessions/checkout redesign/00 Handoff.md`, named exactly as you typed it. Later, `/maximuse:save checkout redesign` updates that same handoff and clears the chat, and `/maximuse:resume checkout redesign` continues it in any chat. (Text that looks like a folder path, such as `/maximuse:setup D:\Notes\Vault`, sets up the vault there instead.)
+Claude names the handoff from the task (for example `Cart discount codes`), creates `Projects/<this folder's name>/Sessions/Cart discount codes/00 Handoff.md`, renames the desktop chat to `Cart discount codes`, and starts the work. To pick the name yourself, put it in quotes first: `/maximuse:setup "checkout redesign" add discount codes`. Later, `/maximuse:save` updates that same handoff and clears the chat, and in any new chat `/maximuse:resume Cart discount codes` (the old chat's title, as the sidebar shows it) continues it. `/maximuse:resume` on its own lists unfinished handoffs by number. (Text that looks like a folder path, such as `/maximuse:setup D:\Notes\Vault`, sets up the vault there instead.)
 
 ## 4. Everyday use
 
 | Command | When |
 |---|---|
-| `/maximuse:setup <name>` | You start a piece of work. Creates its handoff under exactly that name. |
-| `/maximuse:save [name]` | The chat is getting long (Claude suggests it around 250k tokens) or you're stepping away. Writes the notes into the handoff with that name, then clears. |
-| `/maximuse:resume <part of name>` | You're in a new chat and want to continue earlier work. With no name, it lists unfinished handoffs and asks. |
+| `/maximuse:setup <what you want done>` | You start a piece of work. Names the handoff (and the desktop chat) from the task, then starts. |
+| `/maximuse:save` | The chat is getting long (Claude suggests it around 250k tokens) or you're stepping away. Writes the notes into this chat's handoff, then clears. |
+| `/maximuse:resume <chat name> [what next]` | You're in a new chat and want to continue earlier work: type the old chat's title or part of the handoff's name, optionally followed by what to do. With nothing, it lists unfinished handoffs by number and asks. |
 | `/maximuse:usage` | You want to see whether it's working. The first run saves a baseline; later runs compare with it. |
 
 Claude also writes short step notes on its own after commits, passing tests, decisions and finished requests.

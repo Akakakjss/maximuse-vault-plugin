@@ -1,13 +1,14 @@
 """Create a Maximuse Vault, or adopt an existing folder as one, and start named handoffs.
 
 Usage: vault_setup.py [--vault PATH] [--dry-run]
-       vault_setup.py [--vault PATH] --handoff NAME [--cwd DIR] [--project NAME] [--dry-run]
+       vault_setup.py [--vault PATH] --handoff NAME [--cwd DIR] [--project NAME] [--chat TITLE] [--dry-run]
 Copies Home.md and _System/Templates/*.md from the plugin into the vault and
 creates Projects/. Existing files are never overwritten, so running it on a
 vault you already use only fills in what is missing.
 --handoff also creates Projects/<project>/Sessions/<NAME>/00 Handoff.md, named
 exactly as given (minus characters Windows forbids in folder names), with
-`cwd:` set to DIR. <project> defaults to DIR's folder name, or General for the
+`cwd:` set to DIR and `chat:` set to TITLE (the chat's title, which resume
+also matches). <project> defaults to DIR's folder name, or General for the
 home folder. A new project gets its Brief, Decisions and Gotchas and a link in
 Home.md. Handoff names are unique across the vault, so an existing one is
 reported and left alone.
@@ -76,7 +77,7 @@ def write_new(path, text):
         f.write(text)
 
 
-def start_handoff(vault, name, cwd, project, dry_run):
+def start_handoff(vault, name, cwd, project, chat, dry_run):
     now = datetime.now()
     taken = [r[1] for r in vc.handoffs(vault) if vc.is_exact_name(r[1], name)]
     if taken:
@@ -91,6 +92,7 @@ def start_handoff(vault, name, cwd, project, dry_run):
     print(f"{verb}: {project} / {name}")
     print(f"  handoff: {handoff}")
     print(f"  cwd: {cwd}")
+    print(f"  chat: {chat or '(none)'}")
     if project_notes:
         print(f"  project notes added: {', '.join(project_notes)}")
     if dry_run:
@@ -98,7 +100,8 @@ def start_handoff(vault, name, cwd, project, dry_run):
 
     text = from_template(vault, "Handoff.md", now)
     head, sep, body = text.partition("\n---\n")
-    head = "\n".join(f"cwd: {cwd}" if line.startswith("cwd:") else line for line in head.split("\n"))
+    lines = [line for line in head.split("\n") if not line.startswith("chat:")]
+    head = "\n".join(f"cwd: {cwd}\nchat: {chat}" if line.startswith("cwd:") else line for line in lines)
     body = body.replace("# Handoff\n", f"# Handoff: {name}\n", 1)
     write_new(handoff, head + sep + body)
     for note in project_notes:
@@ -129,6 +132,7 @@ def main():
     ap.add_argument("--handoff", nargs="*", default=[])
     ap.add_argument("--cwd")
     ap.add_argument("--project")
+    ap.add_argument("--chat", default="", help="the chat's title, so resume can find the handoff by it")
     args = ap.parse_args()
     vault = vc.resolve_vault(args.vault)
 
@@ -140,7 +144,7 @@ def main():
         if not name:
             print("HANDOFF NAME EMPTY: give a name with at least one letter or digit.")
         else:
-            start_handoff(vault, name, cwd, project, args.dry_run)
+            start_handoff(vault, name, cwd, project, " ".join(args.chat.split()), args.dry_run)
     handoffs = vc.handoffs(vault) if os.path.isdir(vault) else []
     print(f"HANDOFFS FOUND: {len(handoffs)}")
 

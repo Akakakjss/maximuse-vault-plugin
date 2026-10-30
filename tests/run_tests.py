@@ -209,6 +209,29 @@ def main():
             f.write(text)
         code, out, _ = run("vault_find.py", ["--vault", vault, shop])
         check(b"MATCH (this folder):" in out and b"status: in-progress" in out, "handoff saved with a UTF-8 BOM still matches")
+        print("chat titles and finder matching")
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "Cart discount codes", "--cwd", shop, "--chat", "Cart discount codes"])
+        disc = os.path.join(vault, "Projects", "shop", "Sessions", "Cart discount codes", "00 Handoff.md")
+        with open(disc, encoding="utf-8") as f:
+            text = f.read()
+        check("\nchat: Cart discount codes\n" in text and text.count("\nchat:") == 1, "--chat is written to the frontmatter once")
+        with open(disc, "w", encoding="utf-8") as f:
+            f.write(text.replace("chat: Cart discount codes", "chat: Promo codes at checkout"))
+        code, out, _ = run("vault_find.py", ["--vault", vault, work, "--name", "Promo", "codes", "at", "checkout"])
+        check(b"Cart discount codes" in out and b"exact: yes" in out, "a renamed chat's title finds its handoff, exactly")
+        code, out, _ = run("vault_find.py", ["--vault", vault, work, "--name", "codes", "discount"])
+        check(b"1 match(es)" in out and b"Cart discount codes" in out, "words in any order match")
+        code, out, _ = run("vault_find.py", ["--vault", vault, os.path.join(tmp, "elsewhere")])
+        text = out.decode("utf-8", "replace")
+        check("\n1. " in text and "chat: Promo codes at checkout" in text, "unfinished list is numbered and shows chat titles")
+        old_template = os.path.join(vault, "_System", "Templates", "Handoff.md")
+        with open(old_template, encoding="utf-8") as f:
+            tpl = f.read()
+        with open(old_template, "w", encoding="utf-8") as f:
+            f.write(tpl.replace("chat: \n", ""))  # a vault set up before chat: existed
+        run("vault_setup.py", ["--vault", vault, "--handoff", "Old template", "--cwd", shop, "--chat", "Old template"])
+        with open(os.path.join(vault, "Projects", "shop", "Sessions", "Old template", "00 Handoff.md"), encoding="utf-8") as f:
+            check("\nchat: Old template\n" in f.read(), "an older vault template still gets the chat line")
         code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "???", "--cwd", shop])
         check(b"HANDOFF NAME EMPTY" in out, "a name with nothing usable is refused")
 

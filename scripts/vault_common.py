@@ -96,6 +96,19 @@ def is_exact_name(handoff_path, name):
     return bool(name) and name in (os.path.basename(session_dir(handoff_path)).lower(), handoff_name(handoff_path).lower())
 
 
+def name_match(handoff_path, fields, name):
+    """How a typed name matches a handoff: "exact" (folder, full name or chat title), "words"
+    (every word appears in the name or chat title, in any order), or None."""
+    name = " ".join(name.split()).lower()
+    if not name:
+        return None
+    chat = " ".join((fields.get("chat") or "").split()).lower()
+    if is_exact_name(handoff_path, name) or name == chat:
+        return "exact"
+    text = f"{handoff_name(handoff_path).lower()} {chat}"
+    return "words" if all(word in text for word in name.split()) else None
+
+
 def safe_name(name):
     """The user's name for a handoff or project as a folder name: only characters Windows forbids are dropped."""
     name = "".join(" " if c in '<>:"/\\|?*' or ord(c) < 32 else c for c in name or "")

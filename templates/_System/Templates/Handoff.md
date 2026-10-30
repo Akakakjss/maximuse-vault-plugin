@@ -1,12 +1,13 @@
 ---
 type: handoff
 cwd: 
+chat: 
 status: in-progress
 updated: {{date}} {{time}}
 ---
 # Handoff
 
-`cwd` = the exact working directory (the resume hook matches on it). `status` = in-progress, blocked or done.
+`cwd` = the exact working directory (the resume hook matches on it). `chat` = the chat's title (resume also finds the handoff by it). `status` = in-progress, blocked or done.
 
 ## Goal and status
 1–3 lines: what this session is for and where it stands.

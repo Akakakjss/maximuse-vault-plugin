@@ -43,11 +43,11 @@ sandbox = "unelevated"
 
 | Codex | Other AGENTS.md tools | Does |
 |---|---|---|
-| `$maximuse-setup <name>` | `maximuse setup <name>` | Starts a handoff named exactly `<name>` for this folder. |
-| `$maximuse-save <name>` | `maximuse save <name>` | Writes a step note and rebuilds that handoff from checked state. |
-| `$maximuse-resume <name>` | `maximuse resume <name>` | In a new chat: loads the handoff, Brief and notes, checks git and tests, reports the next step. |
+| `$maximuse-setup <what you want done>` | `maximuse setup <what you want done>` | Names this chat's handoff from the task (or `"<name>" <task>` for your own name) and starts the task. |
+| `$maximuse-save` | `maximuse save` | Writes a step note and rebuilds this chat's handoff from checked state. |
+| `$maximuse-resume <name> [what next]` | `maximuse resume <name> [what next]` | In a new chat: finds the handoff by any words of its name or its number in the list, loads it with the Brief and notes, checks git and tests, and carries on. |
 
-**What's different from Claude Code.** These agents have no session hook, so `save` can't clear and reload the chat for you. After saving, start a new chat (Codex CLI: `/new`) and run resume with the name. `/maximuse:usage` is Claude Code only, since it reads Claude Code's own transcripts.
+**What's different from Claude Code.** These agents have no session hook, so `save` can't clear and reload the chat for you. After saving, start a new chat (Codex CLI: `/new`) and run resume with the name it printed. These tools can't rename their chats, so the handoff's name is the one to remember (or run resume alone and pick a number). `/maximuse:usage` is Claude Code only, since it reads Claude Code's own transcripts.
 
 ## Update and uninstall
 
