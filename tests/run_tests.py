@@ -17,6 +17,7 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.join(os.path.dirname(HERE), "scripts")
+INSTALL = os.path.join(os.path.dirname(HERE), "universal", "install.py")
 PY = sys.executable
 FAILS = []
 
@@ -25,6 +26,11 @@ def run(script, args=(), stdin=b"", env=None):
     full_env = {k: v for k, v in os.environ.items() if not k.startswith(("CLAUDE_VAULT", "CLAUDE_PLUGIN_OPTION_"))}
     full_env.update(env or {})
     p = subprocess.run([PY, os.path.join(SCRIPTS, script), *args], input=stdin, capture_output=True, env=full_env, timeout=30)
+    return p.returncode, p.stdout, p.stderr
+
+
+def run_at(script_path, args=()):
+    p = subprocess.run([PY, script_path, *args], capture_output=True, timeout=30)
     return p.returncode, p.stdout, p.stderr
 
 
@@ -169,6 +175,96 @@ def main():
         check("MATCH: none" in text and "RECENT UNFINISHED (2)" in text, "no name: lists unfinished handoffs")
         code, out, _ = run("vault_find.py", ["--vault", os.path.join(tmp, "nope"), work])
         check(b"VAULT MISSING" in out, "missing vault is reported")
+
+        print("setup: named handoff")
+        shop = os.path.join(tmp, "work", "shop")
+        os.makedirs(shop)
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "Checkout redesign", "--cwd", shop, "--dry-run"])
+        named = os.path.join(vault, "Projects", "shop", "Sessions", "Checkout redesign", "00 Handoff.md")
+        check(code == 0 and b"WOULD CREATE: shop / Checkout redesign" in out and not os.path.exists(named), "dry run names the handoff, writes nothing")
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "Checkout redesign", "--cwd", shop])
+        check(code == 0 and b"HANDOFF CREATED: shop / Checkout redesign" in out and os.path.isfile(named), "creates the handoff under exactly the given name")
+        with open(named, encoding="utf-8") as f:
+            text = f.read()
+        check(f"cwd: {shop}\n" in text and "# Handoff: Checkout redesign" in text and "{{" not in text, "handoff has cwd, title, no placeholders")
+        for note in ("Brief.md", "Decisions.md", "Gotchas.md"):
+            check(os.path.isfile(os.path.join(vault, "Projects", "shop", note)), f"new project gets {note}")
+        with open(os.path.join(vault, "Home.md"), encoding="utf-8") as f:
+            check("[[Projects/shop/Brief|shop]]" in f.read(), "new project linked in Home.md")
+        before = os.path.getmtime(named)
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "checkout REDESIGN", "--cwd", work])
+        check(b"HANDOFF EXISTS: shop / Checkout redesign" in out and os.path.getmtime(named) == before, "existing name (any case): reported, left alone")
+        ctx = hook(vault, {"source": "startup", "cwd": shop})
+        check("shop / Checkout redesign" in ctx, "hook finds the new handoff by its cwd")
+        code, out, _ = run("vault_find.py", ["--vault", vault, work, "--name", "Checkout", "redesign"])
+        text = out.decode("utf-8", "replace")
+        check("exact: yes" in text, "finder marks an exact name")
+        code, out, _ = run("vault_find.py", ["--vault", vault, work, "--name", "Checkout"])
+        check(b"exact: yes" not in out and b"1 match(es)" in out, "partial name: match without the exact mark")
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", 'Fix: a/b "quotes"?', "--cwd", shop])
+        check(os.path.isfile(os.path.join(vault, "Projects", "shop", "Sessions", "Fix a b quotes", "00 Handoff.md")), "characters Windows forbids are dropped")
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "Notes", "--cwd", os.path.expanduser("~")])
+        check(b"HANDOFF CREATED: General / Notes" in out, "home folder goes to the General project")
+        with open(named, "w", encoding="utf-8-sig") as f:  # PowerShell 5.1 Set-Content -Encoding utf8 adds a BOM
+            f.write(text)
+        code, out, _ = run("vault_find.py", ["--vault", vault, shop])
+        check(b"MATCH (this folder):" in out and b"status: in-progress" in out, "handoff saved with a UTF-8 BOM still matches")
+        print("chat titles and finder matching")
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "Cart discount codes", "--cwd", shop, "--chat", "Cart discount codes"])
+        disc = os.path.join(vault, "Projects", "shop", "Sessions", "Cart discount codes", "00 Handoff.md")
+        with open(disc, encoding="utf-8") as f:
+            text = f.read()
+        check("\nchat: Cart discount codes\n" in text and text.count("\nchat:") == 1, "--chat is written to the frontmatter once")
+        with open(disc, "w", encoding="utf-8") as f:
+            f.write(text.replace("chat: Cart discount codes", "chat: Promo codes at checkout"))
+        code, out, _ = run("vault_find.py", ["--vault", vault, work, "--name", "Promo", "codes", "at", "checkout"])
+        check(b"Cart discount codes" in out and b"exact: yes" in out, "a renamed chat's title finds its handoff, exactly")
+        code, out, _ = run("vault_find.py", ["--vault", vault, work, "--name", "codes", "discount"])
+        check(b"1 match(es)" in out and b"Cart discount codes" in out, "words in any order match")
+        code, out, _ = run("vault_find.py", ["--vault", vault, os.path.join(tmp, "elsewhere")])
+        text = out.decode("utf-8", "replace")
+        check("\n1. " in text and "chat: Promo codes at checkout" in text, "unfinished list is numbered and shows chat titles")
+        old_template = os.path.join(vault, "_System", "Templates", "Handoff.md")
+        with open(old_template, encoding="utf-8") as f:
+            tpl = f.read()
+        with open(old_template, "w", encoding="utf-8") as f:
+            f.write(tpl.replace("chat: \n", ""))  # a vault set up before chat: existed
+        run("vault_setup.py", ["--vault", vault, "--handoff", "Old template", "--cwd", shop, "--chat", "Old template"])
+        with open(os.path.join(vault, "Projects", "shop", "Sessions", "Old template", "00 Handoff.md"), encoding="utf-8") as f:
+            check("\nchat: Old template\n" in f.read(), "an older vault template still gets the chat line")
+        code, out, _ = run("vault_setup.py", ["--vault", vault, "--handoff", "???", "--cwd", shop])
+        check(b"HANDOFF NAME EMPTY" in out, "a name with nothing usable is refused")
+
+        print("universal install (Codex / AGENTS.md)")
+        uhome, codex, skills, repo = (os.path.join(tmp, "u", n) for n in ("maximuse", "codex", "skills", "repo"))
+        write(os.path.join(codex, "AGENTS.md"), "# My own rules\nKeep this.\n")
+        os.makedirs(repo)
+        uvault = os.path.join(tmp, "U Vault")
+        base = [PY, INSTALL, "--home", uhome, "--codex-home", codex, "--skills-dir", skills]
+        p = subprocess.run(base + ["--vault", uvault, "--project", repo, "--dry-run"], capture_output=True, timeout=60)
+        check(p.returncode == 0 and b"WOULD WRITE" in p.stdout and not os.path.exists(uhome) and not os.path.exists(uvault), "dry run writes nothing")
+        p = subprocess.run(base + ["--vault", uvault, "--project", repo], capture_output=True, timeout=60)
+        check(p.returncode == 0 and os.path.isfile(os.path.join(uvault, "Home.md")), "install creates the vault")
+        for rel in ("scripts/vault_find.py", "scripts/vault_setup.py", "templates/_System/Templates/Handoff.md", "skills/maximuse-save/SKILL.md"):
+            check(os.path.isfile(os.path.join(uhome, rel)), f"home has {rel}")
+        with open(os.path.join(skills, "maximuse-save", "SKILL.md"), encoding="utf-8") as f:
+            text = f.read()
+        check(text.startswith("---\nname: maximuse-save\n") and "{{" not in text and uvault in text, "Codex skill has frontmatter and filled-in paths")
+        with open(os.path.join(codex, "AGENTS.md"), encoding="utf-8") as f:
+            text = f.read()
+        check(text.startswith("# My own rules\nKeep this.\n") and text.count("maximuse:start") == 1 and uvault in text, "rules appended, user's AGENTS.md kept")
+        check(os.path.isfile(os.path.join(repo, "AGENTS.md")), "--project gets an AGENTS.md")
+        subprocess.run(base + ["--vault", uvault], capture_output=True, timeout=60)
+        with open(os.path.join(codex, "AGENTS.md"), encoding="utf-8") as f:
+            check(f.read().count("maximuse:start") == 1, "reinstall replaces the block, doesn't add a second")
+        code, out, _ = run_at(os.path.join(uhome, "scripts", "vault_setup.py"), ["--vault", uvault, "--handoff", "Codex test", "--cwd", repo])
+        check(b"HANDOFF CREATED: repo / Codex test" in out, "installed scripts start a named handoff")
+        p = subprocess.run(base + ["--uninstall", "--project", repo], capture_output=True, timeout=60)
+        with open(os.path.join(codex, "AGENTS.md"), encoding="utf-8") as f:
+            check(f.read() == "# My own rules\nKeep this.\n", "uninstall restores the user's AGENTS.md")
+        check(not os.path.exists(uhome) and not os.path.exists(os.path.join(skills, "maximuse-save")), "uninstall removes home and skills")
+        check(not os.path.exists(os.path.join(repo, "AGENTS.md")), "an AGENTS.md that held only the rules is removed")
+        check(os.path.isfile(os.path.join(uvault, "Home.md")), "uninstall keeps the vault")
 
         print("usage summary")
         cfg = os.path.join(tmp, "cfg")
